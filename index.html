@@ -8,6 +8,15 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<meta name="theme-color" content="#f5f2ec">
+<script>
+  // 테마는 기본 밝게. 이 기기에서 어둡게를 고른 적이 있을 때만 어둡게 연다(그리기 전에 정해 깜빡임을 막는다).
+  (function () {
+    var t = 'light';
+    try { if (localStorage.getItem('future-income.theme') === 'dark') t = 'dark'; } catch (e) { /* 저장소가 막혀도 밝게 연다 */ }
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
 <!--
   미래 먹거리 노트
   - 화면은 이 파일, 아이디어 데이터는 ideas.json에 둔다.
@@ -44,36 +53,37 @@
   --shadow-dialog: 0 24px 64px rgba(30, 20, 5, .22);
   --backdrop: rgba(28, 24, 18, .42);
   --edge: #b4ad9f;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141619;
-    --surface: #1c1f23;
-    --ink: #ebe8e3;
-    --ink-2: #c4c2bd;
-    --muted: #8d939b;
-    --line: #2d3137;
-    --chip: #24282d;
-    --burden: #e58a5f;
-    --gain: #5cbf95;
-    --danger: #ef7a6b;
-    --dot-off: #353a42;
-    --focus: #7aa7e0;
-    --c-asset: #7ea6e0;
-    --c-unmanned: #b39ae0;
-    --c-commerce: #d9a64e;
-    --c-content: #5cc2ad;
-    --c-mine: #ec8196;
-    --s-candidate: #9aa0a8;
-    --s-reviewing: #7ea6e0;
-    --s-testing: #d9a64e;
-    --s-active: #5cbf95;
-    --s-hold: #8d857e;
-    --shadow-hover: 0 0 0 1px var(--line);
-    --shadow-dialog: 0 24px 64px rgba(0, 0, 0, .5);
-    --backdrop: rgba(0, 0, 0, .6);
-    --edge: #5d646e;
-  }
+/* 어두운 테마: 시스템 설정을 따르지 않고 버튼으로 고를 때만 쓴다. 폰에서 너무 어둡지 않게 한 단계 밝게 잡았다. */
+:root[data-theme="dark"] {
+  --bg: #1d2126;
+  --surface: #272c33;
+  --ink: #f0ede8;
+  --ink-2: #d3d0ca;
+  --muted: #a2a9b2;
+  --line: #3b424b;
+  --chip: #323840;
+  --burden: #f0956a;
+  --gain: #6fcca3;
+  --danger: #f28b7d;
+  --dot-off: #464d57;
+  --focus: #8bb4ea;
+  --c-asset: #8fb3ea;
+  --c-unmanned: #c0a9ea;
+  --c-commerce: #e3b25e;
+  --c-content: #6fcfba;
+  --c-mine: #f191a4;
+  --s-candidate: #aab0b8;
+  --s-reviewing: #8fb3ea;
+  --s-testing: #e3b25e;
+  --s-active: #6fcca3;
+  --s-hold: #a39a92;
+  --shadow-hover: 0 0 0 1px var(--line);
+  --shadow-dialog: 0 24px 64px rgba(0, 0, 0, .45);
+  --backdrop: rgba(0, 0, 0, .5);
+  --edge: #737b86;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -375,7 +385,7 @@ dialog::backdrop { background: var(--backdrop); }
 .node.dim { opacity: .35; }
 .node .ico { text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 .node .lbl {
-  font-size: 12.5px; font-weight: 500; text-anchor: middle; fill: var(--ink); pointer-events: none;
+  font-size: 12.5px; font-weight: 500; fill: var(--ink); pointer-events: none; /* 정렬(text-anchor)은 자리 고르기에서 정한다 */
   stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke;
 }
 .has-sel .node:not(.dim) .lbl { font-weight: 700; }
@@ -439,6 +449,14 @@ dialog::backdrop { background: var(--backdrop); }
   .link-row .icon-btn { grid-column: 2; grid-row: 1; }
 }
 
+/* 어두운 테마에서 색면이 묻히지 않도록 채움을 조금 더 진하게, 흐린 점은 덜 흐리게 */
+[data-theme="dark"] :is(.tile-art, .d-art, .p-art, .conn-row .ic) { background: color-mix(in srgb, var(--c) 22%, var(--surface)); }
+[data-theme="dark"] .hull { fill-opacity: .1; stroke-opacity: .35; }
+[data-theme="dark"] .node .dot { fill: color-mix(in srgb, var(--c) 24%, var(--surface)); }
+[data-theme="dark"] .node.sel .dot { fill: color-mix(in srgb, var(--c) 36%, var(--surface)); }
+[data-theme="dark"] .node.dim { opacity: .5; }
+.theme-btn { min-width: 40px; padding: 6px 10px; font-size: 16px; }
+
 /* 알림 */
 .toast {
   position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 10;
@@ -488,6 +506,7 @@ dialog::backdrop { background: var(--backdrop); }
       <input type="search" class="search" id="q" placeholder="이름·설명·메모 검색" aria-label="아이디어 검색">
       <button type="button" class="btn primary" id="addBtn">＋ 아이디어 추가</button>
       <button type="button" class="btn" id="setBtn" aria-haspopup="dialog"><span class="mode-dot" id="modeDot"></span><span id="modeText">저장: 이 기기</span></button>
+      <button type="button" class="btn theme-btn emoji" id="themeBtn" aria-label="어두운 화면으로" title="어두운 화면으로">🌙</button>
     </div>
     <div class="chips" id="catChips" role="group" aria-label="분류로 거르기"></div>
     <div class="row2">
@@ -627,6 +646,7 @@ dialog::backdrop { background: var(--backdrop); }
   const REPO = { owner: 'lodeym', name: 'future-income', branch: 'main', path: 'ideas.json' };
   const LS_TOKEN = 'future-income.token';
   const LS_LOCAL = 'future-income.local';
+  const LS_THEME = 'future-income.theme'; // 'dark'일 때만 저장한다. <head>의 테마 스크립트와 같은 키
 
   const CATEGORIES = [
     { id: 'all', label: '전체' },
@@ -1119,7 +1139,7 @@ dialog::backdrop { background: var(--backdrop); }
         g.select('.halo').attr('r', n.r + 7);
         g.select('.dot').attr('r', n.r);
         g.select('.ico').attr('font-size', n.r * 0.95).text(n.idea.icon || String(n.idea.title || '?').slice(0, 1));
-        g.select('.lbl').attr('y', n.r + (graph.narrow ? 12 : 15)).text(showLabel(n) ? n.idea.title : '');
+        g.select('.lbl').text(showLabel(n) ? n.idea.title : ''); // 자리는 placeNodeLabels에서 정한다
       });
     positionGraph();
   }
@@ -1132,24 +1152,65 @@ dialog::backdrop { background: var(--backdrop); }
     L.edge.selectAll('line')
       .attr('x1', (e) => byNo.get(e.a).x).attr('y1', (e) => byNo.get(e.a).y)
       .attr('x2', (e) => byNo.get(e.b).x).attr('y2', (e) => byNo.get(e.b).y);
-    drawHulls(window.d3);
+    drawHulls(window.d3, placeNodeLabels());
+  }
+
+  // 두 상자가 겹치는 넓이
+  const boxArea = (a, b) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)) * Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
+
+  // 점 이름표 자리: 아래 → 위 → 오른쪽 → 왼쪽 후보 중 다른 이름표·점과 가장 덜 겹치는 곳을 고른다.
+  // 선택한 점, 그 이웃, 나머지 순서로 먼저 자리를 잡는다. 정한 이름표 상자 목록을 돌려준다.
+  function placeNodeLabels() {
+    const { nodes, W, H } = graph;
+    const FS = labelSize();
+    const circles = nodes.map((n) => ({ n, x0: n.x - n.r, x1: n.x + n.r, y0: n.y - n.r, y1: n.y + n.r }));
+    const textOf = new Map();
+    graph.layers.node.selectAll('g.node').each(function (n) { textOf.set(n.no, this.querySelector('.lbl')); });
+    const rank = (n) => (n.no === graph.selected ? 0 : graph.near.has(n.no) ? 1 : 2);
+    const placed = [];
+    for (const n of nodes.filter(showLabel).sort((a, b) => rank(a) - rank(b) || a.no - b.no)) {
+      const t = textOf.get(n.no);
+      if (!t || !t.textContent) continue;
+      const w = (t.getComputedTextLength && t.getComputedTextLength()) || n.idea.title.length * FS * 0.92;
+      const gap = 5;
+      const side = { y: FS / 3, y0: -FS / 2 - 1, y1: FS / 2 + 2 };
+      const cands = [
+        { x: 0, y: n.r + FS + 1, anchor: 'middle', x0: -w / 2, x1: w / 2, y0: n.r + 2, y1: n.r + FS + 4, pref: 0 },
+        { x: 0, y: -n.r - 6, anchor: 'middle', x0: -w / 2, x1: w / 2, y0: -n.r - FS - 4, y1: -n.r - 3, pref: 6 },
+        { x: n.r + gap, y: side.y, anchor: 'start', x0: n.r + gap, x1: n.r + gap + w, y0: side.y0, y1: side.y1, pref: 12 },
+        { x: -n.r - gap, y: side.y, anchor: 'end', x0: -n.r - gap - w, x1: -n.r - gap, y0: side.y0, y1: side.y1, pref: 12 },
+      ];
+      let best = null;
+      for (const c of cands) {
+        // 위·아래 이름표가 가장자리에 걸리면 가로로 안쪽으로 밀어 넣는다.
+        let dx = 0;
+        if (c.anchor === 'middle') {
+          if (n.x + c.x0 < 4) dx = 4 - (n.x + c.x0);
+          else if (n.x + c.x1 > W - 4) dx = W - 4 - (n.x + c.x1);
+        }
+        const box = { x0: n.x + c.x0 + dx, x1: n.x + c.x1 + dx, y0: n.y + c.y0, y1: n.y + c.y1 };
+        // 그림 밖이나 위쪽 개수·확대 버튼 줄(40px)로 나가는 만큼 벌점
+        const out = Math.max(0, 4 - box.x0) + Math.max(0, box.x1 - (W - 4)) + Math.max(0, 40 - box.y0) + Math.max(0, box.y1 - (H - 4));
+        const cost = c.pref
+          + placed.reduce((s, b) => s + boxArea(box, b), 0) * 3
+          + circles.reduce((s, b) => s + (b.n === n ? 0 : boxArea(box, b)), 0)
+          + out * FS * 4;
+        if (!best || cost < best.cost) best = { ...c, x: c.x + dx, box, cost };
+      }
+      placed.push(best.box);
+      t.setAttribute('x', best.x);
+      t.setAttribute('y', best.y);
+      t.style.textAnchor = best.anchor;
+    }
+    return placed;
   }
 
   // 분류별 묶음 배경과 이름. 이름은 묶음 둘레의 후보 자리 중 점·이름표와 가장 덜 겹치는 곳(같으면 위쪽)에 둔다.
-  function drawHulls(d3) {
+  function drawHulls(d3, labelBoxes = []) {
     const { nodes, W, H, narrow } = graph;
-    const FS = labelSize();
     const lfs = narrow ? 10.5 : 12;
-    const obstacles = [];
-    nodes.forEach((n) => {
-      obstacles.push({ x0: n.x - n.r, x1: n.x + n.r, y0: n.y - n.r, y1: n.y + n.r });
-      if (showLabel(n)) {
-        const w = n.idea.title.length * FS * 0.92;
-        const ly = n.y + n.r + (narrow ? 12 : 15);
-        obstacles.push({ x0: n.x - w / 2, x1: n.x + w / 2, y0: ly - FS, y1: ly + 3 });
-      }
-    });
-    const area = (a, b) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)) * Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
+    const obstacles = [...nodes.map((n) => ({ x0: n.x - n.r, x1: n.x + n.r, y0: n.y - n.r, y1: n.y + n.r })), ...labelBoxes];
+    const area = boxArea;
     const placed = [];
     const hulls = [];
     for (const c of CATEGORIES) {
@@ -1613,8 +1674,28 @@ dialog::backdrop { background: var(--backdrop); }
     }
   }
 
+  // ── 테마(밝게 / 어둡게) ─────────────────────────────────
+  function applyTheme(theme) {
+    const dark = theme === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#1d2126' : '#f5f2ec');
+    const b = $('themeBtn');
+    b.textContent = dark ? '☀️' : '🌙';
+    b.setAttribute('aria-label', dark ? '밝은 화면으로' : '어두운 화면으로');
+    b.title = b.getAttribute('aria-label');
+  }
+  function toggleTheme() {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    // <head> 스크립트가 문자열 그대로 비교하므로 JSON으로 감싸지 않고 저장한다.
+    try {
+      if (next === 'dark') localStorage.setItem(LS_THEME, 'dark'); else localStorage.removeItem(LS_THEME);
+    } catch { /* 저장이 막혀도 이번 화면에는 적용한다 */ }
+    applyTheme(next);
+  }
+
   // ── 이벤트 연결과 시작 ──────────────────────────────────
   function bind() {
+    $('themeBtn').addEventListener('click', toggleTheme);
     $('q').addEventListener('input', (e) => { state.q = e.target.value.trim().toLowerCase(); render(); });
     $('sort').addEventListener('change', (e) => { state.sort = e.target.value; render(); });
     $('addBtn').addEventListener('click', () => openEditor());
@@ -1625,12 +1706,19 @@ dialog::backdrop { background: var(--backdrop); }
     });
     document.querySelectorAll('.seg-btn').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
     window.addEventListener('hashchange', () => setView(location.hash === '#graph' ? 'graph' : 'cards'));
-    // 창 크기가 바뀌면 관계도를 새 크기에 맞춰 다시 그린다(연속 이벤트는 묶어서 한 번만).
+    // 관계도 영역 크기가 바뀌면(창 크기, 폰 회전 등) 새 크기에 맞춰 다시 그린다. 연속 변화는 묶어서 한 번만.
+    // ResizeObserver를 기본으로 쓰고, 창 resize 이벤트도 같이 받아 어느 한쪽이 오지 않아도 다시 그린다.
     let resizeTimer;
-    window.addEventListener('resize', () => {
+    const onGraphResize = () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => { if (state.view === 'graph') render(); }, 200);
-    });
+      resizeTimer = setTimeout(() => {
+        if (state.view !== 'graph') return;
+        const { width, height } = $('graphSvg').getBoundingClientRect();
+        if (width && height && `${Math.round(width / 20)}x${Math.round(height / 20)}` !== graph.sizeKey) render();
+      }, 150);
+    };
+    new ResizeObserver(onGraphResize).observe($('graphSvg'));
+    window.addEventListener('resize', onGraphResize);
     $('setBtn').addEventListener('click', () => { setMsg(''); renderMode(); $('settings').showModal(); });
     $('editForm').addEventListener('submit', onSave);
     $('connectBtn').addEventListener('click', connect);
@@ -1651,6 +1739,7 @@ dialog::backdrop { background: var(--backdrop); }
   }
 
   async function init() {
+    applyTheme(document.documentElement.getAttribute('data-theme'));
     buildForm();
     bind();
     if (location.hash === '#graph') state.view = 'graph';
