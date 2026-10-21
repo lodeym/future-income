@@ -1,0 +1,551 @@
+{
+  "updated": "2026-10-20",
+  "ideas": [
+    {
+      "no": 1,
+      "title": "배당주 투자",
+      "icon": "📈",
+      "category": "asset",
+      "status": "candidate",
+      "draft": true,
+      "summary": "주식을 보유하고 정기적으로 배당금을 받는다.",
+      "scores": {
+        "capital": 4,
+        "time": 1,
+        "upkeep": 1,
+        "risk": 3,
+        "fit": 2,
+        "income": 2
+      },
+      "next": "목표 월 배당액을 정하고 거꾸로 필요한 원금 계산하기",
+      "note": "배당 수익은 투자 원금에 정비례한다. 원금이 작으면 배당보다 주가 변동이 훨씬 크게 체감되고, 기업 실적이 나빠지면 배당이 줄거나 끊길 수 있다. 새 수익원이라기보다 모은 돈을 굴리는 방법에 가깝다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 2,
+      "title": "온라인 강의 판매",
+      "icon": "🎓",
+      "category": "content",
+      "status": "candidate",
+      "draft": true,
+      "summary": "강의를 한 번 제작해 반복 판매한다.",
+      "scores": {
+        "capital": 1,
+        "time": 4,
+        "upkeep": 2,
+        "risk": 2,
+        "fit": 4,
+        "income": 3
+      },
+      "next": "강의 주제 후보 3개와 수강 대상 정리하기",
+      "note": "제작 이후에도 홍보와 질의응답, 내용 갱신이 계속 따라온다. 돈을 내고 들을 만큼 구체적인 주제가 있는지가 관건이다. 물류 현장 운영이나 업무에 AI 도구를 붙이는 법처럼 직접 해 본 일이 소재가 될 수 있다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 3,
+      "title": "고금리 예금·파킹통장",
+      "icon": "🏦",
+      "category": "asset",
+      "status": "candidate",
+      "draft": true,
+      "summary": "현금을 예치하고 이자를 받는다.",
+      "scores": {
+        "capital": 3,
+        "time": 1,
+        "upkeep": 1,
+        "risk": 1,
+        "fit": 2,
+        "income": 1
+      },
+      "next": "비상금 규모를 정하고 나머지 돈의 쓰임 나누기",
+      "note": "가장 안전하지만 이자는 물가 상승률을 겨우 따라가는 수준이다. 새 수익원이라기보다 비상금과 다른 투자를 기다리는 돈을 두는 자리로 보는 편이 맞다. 예금자보호 한도 안에서 금융기관을 나눠 두는 것이 원칙이다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 4,
+      "title": "임대 부동산",
+      "icon": "🏠",
+      "category": "asset",
+      "status": "candidate",
+      "draft": true,
+      "summary": "주택·상가를 보유하고 월세를 받는다.",
+      "scores": {
+        "capital": 5,
+        "time": 3,
+        "upkeep": 3,
+        "risk": 4,
+        "fit": 2,
+        "income": 4
+      },
+      "next": "관심 지역 한 곳을 정해 매매가 대비 월세 수익률 계산하기",
+      "note": "월세 뒤에는 대출 이자, 보유세, 공실, 수리, 임차인 관리가 따라온다. 금리와 지역에 따라 실제 수익률 차이가 크고, 한 번 사면 쉽게 되돌릴 수 없다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 5,
+      "title": "P2P 투자",
+      "icon": "🤝",
+      "category": "asset",
+      "status": "candidate",
+      "draft": true,
+      "summary": "온라인 플랫폼으로 대출에 투자하고 이자를 받는다.",
+      "scores": {
+        "capital": 2,
+        "time": 1,
+        "upkeep": 1,
+        "risk": 4,
+        "fit": 1,
+        "income": 2
+      },
+      "next": "보류 후보. 검토한다면 등록 업체 여부와 분산 원칙부터 확인하기",
+      "note": "차입자 연체·부도와 플랫폼 폐업 위험을 함께 지고, 예금자보호 대상이 아니다. 업체가 온라인투자연계금융업 등록을 마쳤는지부터 확인해야 한다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 6,
+      "title": "리츠(REITs) 투자",
+      "icon": "🏢",
+      "category": "asset",
+      "status": "candidate",
+      "draft": true,
+      "summary": "부동산 투자회사에 투자해 배당을 받는다.",
+      "scores": {
+        "capital": 2,
+        "time": 1,
+        "upkeep": 1,
+        "risk": 3,
+        "fit": 2,
+        "income": 2
+      },
+      "next": "상장 리츠 몇 곳의 배당 이력과 보유 자산 비교하기",
+      "note": "적은 돈으로 부동산 임대 수익에 간접 투자하는 방법이다. 상장 리츠는 주식처럼 가격이 오르내리고 금리 변화에 민감하다. 직접 임대보다 손은 훨씬 덜 간다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 7,
+      "title": "채권 투자",
+      "icon": "📜",
+      "category": "asset",
+      "status": "candidate",
+      "draft": true,
+      "summary": "정부·기업에 돈을 빌려주고 이자를 받는다.",
+      "scores": {
+        "capital": 3,
+        "time": 1,
+        "upkeep": 1,
+        "risk": 2,
+        "fit": 2,
+        "income": 2
+      },
+      "next": "국채·우량 회사채 금리를 예금 금리와 비교하기",
+      "note": "만기까지 보유하면 받을 이자가 미리 정해진다. 중간에 팔면 금리 변화에 따라 손익이 생기고, 회사채는 발행 회사의 신용도를 따져야 한다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 8,
+      "title": "온라인 풀필먼트 판매",
+      "icon": "📦",
+      "category": "commerce",
+      "status": "candidate",
+      "draft": true,
+      "summary": "상품을 판매하고 보관·포장·배송은 전문 업체에 맡긴다.",
+      "scores": {
+        "capital": 3,
+        "time": 3,
+        "upkeep": 3,
+        "risk": 3,
+        "fit": 5,
+        "income": 3
+      },
+      "next": "풀필먼트 요금표로 상품 1개당 물류비를 계산해 마진 확인하기",
+      "note": "물류를 맡겨도 상품 소싱, 상세 페이지, 광고, 고객 응대는 직접 해야 한다. 보관료·출고비 구조를 이해하고 있으면 마진 계산과 업체 선정에서 실수가 줄어든다. 물류 경험이 가장 직접 쓰이는 항목이다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 9,
+      "title": "온라인 쇼핑몰 운영",
+      "icon": "🛍️",
+      "category": "commerce",
+      "status": "candidate",
+      "draft": true,
+      "summary": "스마트스토어·쿠팡 등에서 상품을 판매한다.",
+      "scores": {
+        "capital": 2,
+        "time": 3,
+        "upkeep": 4,
+        "risk": 3,
+        "fit": 3,
+        "income": 3
+      },
+      "next": "팔고 싶은 상품군 하나를 정하고 경쟁 상품 가격 조사하기",
+      "note": "26개 가운데 손이 계속 가는 축에 든다. 주문 처리, 고객 응대, 광고가 매일 돌아가야 하므로 자동 수익보다는 작은 사업에 가깝다. 대신 키우는 만큼 수익 상한도 열려 있다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 10,
+      "title": "무인점포 운영",
+      "icon": "🏪",
+      "category": "unmanned",
+      "status": "candidate",
+      "draft": true,
+      "summary": "아이스크림·간식 등 무인매장을 운영한다.",
+      "scores": {
+        "capital": 4,
+        "time": 3,
+        "upkeep": 3,
+        "risk": 3,
+        "fit": 3,
+        "income": 2
+      },
+      "next": "관심 동네 무인점포 3곳을 방문해 운영 방식 관찰하기",
+      "note": "무인이어도 재고 보충, 청소, 도난 대응은 사람 몫이다. 상권과 임대료가 수익을 거의 결정하고, 같은 업종이 빠르게 늘어난 지역은 경쟁이 심하다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 11,
+      "title": "자판기 운영",
+      "icon": "🥤",
+      "category": "unmanned",
+      "status": "candidate",
+      "draft": true,
+      "summary": "음료·간식·커피 자판기를 설치해 수익을 얻는다.",
+      "scores": {
+        "capital": 3,
+        "time": 2,
+        "upkeep": 3,
+        "risk": 2,
+        "fit": 3,
+        "income": 1
+      },
+      "next": "설치 가능한 자리 후보와 수수료 조건 알아보기",
+      "note": "기계값보다 좋은 설치 자리를 얻는 일이 어렵다. 자리 수수료와 보충 동선이 수익을 좌우하므로, 여러 대를 묶어 순회하는 물류 감각이 필요하다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 12,
+      "title": "셀프스토리지 운영",
+      "icon": "🗄️",
+      "category": "unmanned",
+      "status": "candidate",
+      "draft": true,
+      "summary": "개인·기업에 창고 공간을 빌려주고 이용료를 받는다.",
+      "scores": {
+        "capital": 5,
+        "time": 4,
+        "upkeep": 2,
+        "risk": 3,
+        "fit": 4,
+        "income": 3
+      },
+      "next": "근처 셀프스토리지의 이용료와 빈 칸 정도 조사하기",
+      "note": "공간과 설비에 드는 초기 비용이 크지만, 문을 연 뒤의 운영은 비교적 단순하다. 공간 배치와 출입 관리가 창고 운영과 닮아 있어 물류 경험이 쓰일 여지가 있다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 13,
+      "title": "전자책 판매",
+      "icon": "📘",
+      "category": "content",
+      "status": "candidate",
+      "draft": true,
+      "summary": "전자책을 제작해 반복 판매한다.",
+      "scores": {
+        "capital": 1,
+        "time": 3,
+        "upkeep": 1,
+        "risk": 1,
+        "fit": 4,
+        "income": 2
+      },
+      "next": "주제 후보를 정하고 목차 10개 뽑기",
+      "note": "돈보다 시간이 드는 시작점이다. 현장 노하우처럼 구체적인 주제일수록 팔리고, 한 권보다 여러 권이 쌓여야 의미 있는 수익이 된다. 강의나 블로그로 이어 붙이기도 좋다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 14,
+      "title": "내 집 일부 임대",
+      "icon": "🛏️",
+      "category": "unmanned",
+      "status": "candidate",
+      "draft": true,
+      "summary": "남는 방·공간을 임대해 추가 수익을 만든다.",
+      "scores": {
+        "capital": 1,
+        "time": 1,
+        "upkeep": 2,
+        "risk": 2,
+        "fit": 2,
+        "income": 2
+      },
+      "next": "빌려줄 수 있는 공간과 계약상 가능 여부 확인하기",
+      "note": "추가 투자 없이 남는 공간을 쓰는 방법이다. 대신 사생활을 얼마나 내줄 수 있는지, 전세·월세 집이라면 계약상 다시 빌려주는 것이 허용되는지부터 따져야 한다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 15,
+      "title": "단기 숙박 운영",
+      "icon": "🧳",
+      "category": "unmanned",
+      "status": "candidate",
+      "draft": true,
+      "summary": "숙소를 단기간 빌려주고 숙박료를 받는다.",
+      "scores": {
+        "capital": 3,
+        "time": 3,
+        "upkeep": 4,
+        "risk": 4,
+        "fit": 2,
+        "income": 3
+      },
+      "next": "숙박업 영업 신고 요건과 운영 가능 지역 확인하기",
+      "note": "손님이 바뀔 때마다 청소와 응대가 필요해 유지 부담이 크다. 숙박업 영업 신고 요건이 지역과 주거 형태에 따라 까다로워, 수익보다 허용 여부를 먼저 확인해야 한다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 16,
+      "title": "차량 공유·대여",
+      "icon": "🚗",
+      "category": "unmanned",
+      "status": "candidate",
+      "draft": true,
+      "summary": "보유 차량을 다른 사람에게 빌려주고 수익을 얻는다.",
+      "scores": {
+        "capital": 2,
+        "time": 1,
+        "upkeep": 2,
+        "risk": 3,
+        "fit": 2,
+        "income": 1
+      },
+      "next": "개인 차량 공유 서비스의 조건과 보험 범위 확인하기",
+      "note": "이미 가진 차를 쓰므로 시작은 쉽지만 사고, 차량 손상, 보험 처리 부담이 따른다. 개인 차량을 돈 받고 빌려주는 일은 국내에서 허용 범위가 좁아 방식부터 확인해야 한다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 17,
+      "title": "무인 빨래방 운영",
+      "icon": "🧺",
+      "category": "unmanned",
+      "status": "candidate",
+      "draft": true,
+      "summary": "셀프 세탁시설을 갖추고 이용료를 받는다.",
+      "scores": {
+        "capital": 5,
+        "time": 3,
+        "upkeep": 3,
+        "risk": 3,
+        "fit": 3,
+        "income": 3
+      },
+      "next": "상권 후보를 정하고 장비 투자 견적 받아 보기",
+      "note": "세탁 장비와 인테리어에 드는 초기 비용이 크다. 주변 원룸 밀집도와 경쟁 매장 수가 핵심 변수이고, 장비 고장과 청소는 꾸준히 챙겨야 한다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 18,
+      "title": "제휴 마케팅",
+      "icon": "📣",
+      "category": "commerce",
+      "status": "candidate",
+      "draft": true,
+      "summary": "상품·서비스를 소개하고 구매가 생기면 수수료를 받는다.",
+      "scores": {
+        "capital": 1,
+        "time": 3,
+        "upkeep": 3,
+        "risk": 2,
+        "fit": 3,
+        "income": 2
+      },
+      "next": "블로그·유튜브 검토와 묶어서 판단하기",
+      "note": "글이나 영상을 보러 오는 사람이 먼저 있어야 수수료가 생긴다. 단독 사업이라기보다 블로그·유튜브·SNS 같은 채널에 얹는 수익 방식으로 보는 편이 맞다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 19,
+      "title": "무재고 위탁판매",
+      "icon": "🚚",
+      "category": "commerce",
+      "status": "candidate",
+      "draft": true,
+      "summary": "재고 없이 주문이 들어오면 공급업체가 직접 배송한다.",
+      "scores": {
+        "capital": 1,
+        "time": 2,
+        "upkeep": 3,
+        "risk": 3,
+        "fit": 4,
+        "income": 2
+      },
+      "next": "위탁 공급처 2~3곳의 조건 비교하기",
+      "note": "재고 부담은 없지만 품절, 배송 지연, 반품 책임은 판매자가 진다. 마진이 얇아 상품 선정과 공급처 관리가 핵심이며, 배송 흐름을 아는 사람이 문제를 빨리 잡는다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 20,
+      "title": "암호화폐 채굴",
+      "icon": "⛏️",
+      "category": "asset",
+      "status": "candidate",
+      "draft": true,
+      "summary": "컴퓨팅 장비로 암호화폐 채굴 보상을 받는다.",
+      "scores": {
+        "capital": 4,
+        "time": 2,
+        "upkeep": 2,
+        "risk": 5,
+        "fit": 2,
+        "income": 1
+      },
+      "next": "보류 권장. 하려면 전기요금 기준 손익부터 계산하기",
+      "note": "비트코인은 전용 채굴기가 필요하고, 이더리움은 2022년에 채굴 방식을 없앴다. 가정용 전기 누진제까지 고려하면 개인이 수익을 내기 어렵다. 코인 가격 변동 위험도 가장 크다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 21,
+      "title": "블로그 운영",
+      "icon": "✍️",
+      "category": "content",
+      "status": "candidate",
+      "draft": true,
+      "summary": "검색 유입을 쌓아 광고·제휴 수익을 만든다.",
+      "scores": {
+        "capital": 1,
+        "time": 3,
+        "upkeep": 4,
+        "risk": 2,
+        "fit": 3,
+        "income": 2
+      },
+      "next": "쓸 수 있는 주제로 글 제목 20개 만들기",
+      "note": "검색 유입이 쌓이기까지 꾸준한 글쓰기가 필요하다. 검색 정책 변화와 AI 검색 확산으로 블로그 유입이 줄어들 위험이 있다. 전자책·강의의 홍보 창구로 쓰면 가치가 커진다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 22,
+      "title": "유튜브 채널 운영",
+      "icon": "📺",
+      "category": "content",
+      "status": "candidate",
+      "draft": true,
+      "summary": "기존 영상으로 지속적인 광고·제휴 수익을 얻는다.",
+      "scores": {
+        "capital": 2,
+        "time": 4,
+        "upkeep": 4,
+        "risk": 3,
+        "fit": 3,
+        "income": 4
+      },
+      "next": "채널 주제를 정하고 첫 영상 3개 기획하기",
+      "note": "수익 편차가 가장 큰 항목이다. 수익 창출 조건을 넘기기까지 꾸준한 업로드가 필요하다. AI 영상 생성 도구를 쓰면 제작 시간을 줄일 여지가 있지만, 플랫폼의 AI 콘텐츠 정책을 확인해야 한다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 23,
+      "title": "스톡 사진 판매",
+      "icon": "📷",
+      "category": "content",
+      "status": "candidate",
+      "draft": true,
+      "summary": "사진을 플랫폼에 등록하고 다운로드될 때마다 수익을 얻는다.",
+      "scores": {
+        "capital": 1,
+        "time": 2,
+        "upkeep": 2,
+        "risk": 3,
+        "fit": 4,
+        "income": 1
+      },
+      "next": "주요 스톡 플랫폼의 AI 생성물 정책 확인하기",
+      "note": "등록해 두면 팔리는 구조지만 단가가 낮고 경쟁이 많다. AI 생성 이미지는 플랫폼마다 허용 여부와 표기 규정이 다르다. 이미지 생성 환경을 이미 갖추고 있어 시험해 보기는 쉽다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 24,
+      "title": "스톡 영상 판매",
+      "icon": "🎞️",
+      "category": "content",
+      "status": "candidate",
+      "draft": true,
+      "summary": "영상 소스를 등록해 라이선스 수익을 받는다.",
+      "scores": {
+        "capital": 1,
+        "time": 3,
+        "upkeep": 2,
+        "risk": 3,
+        "fit": 4,
+        "income": 2
+      },
+      "next": "스톡 영상 플랫폼 정책과 잘 팔리는 주제 조사하기",
+      "note": "사진보다 건당 단가가 높은 편이다. AI 생성 영상은 사진과 마찬가지로 플랫폼 정책 확인이 먼저다. 스톡 사진과 함께 시험하면 준비 비용을 나눌 수 있다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 25,
+      "title": "SNS 조회수 수익",
+      "icon": "📱",
+      "category": "content",
+      "status": "candidate",
+      "draft": true,
+      "summary": "릴스·숏폼 등의 조회수로 플랫폼 수익을 얻는다.",
+      "scores": {
+        "capital": 1,
+        "time": 3,
+        "upkeep": 5,
+        "risk": 3,
+        "fit": 3,
+        "income": 2
+      },
+      "next": "숏폼 수익 조건을 확인하고 주제 정하기",
+      "note": "조회수 수익 단가는 낮은 편이라 협찬이나 판매로 이어질 때 의미가 생긴다. 알고리즘에 따라 노출이 급변하고, 업로드를 멈추면 수익도 바로 줄어든다. '한 번 만들어두면'과 가장 거리가 먼 항목이다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    },
+    {
+      "no": 26,
+      "title": "디지털 파일 판매",
+      "icon": "🗂️",
+      "category": "content",
+      "status": "candidate",
+      "draft": true,
+      "summary": "노션·엑셀·PPT·디자인 템플릿을 제작해 반복 판매한다.",
+      "scores": {
+        "capital": 1,
+        "time": 3,
+        "upkeep": 1,
+        "risk": 2,
+        "fit": 5,
+        "income": 2
+      },
+      "next": "업무에서 반복해 쓰는 양식 목록 뽑기",
+      "note": "업무에서 반복해 쓰는 엑셀·PPT 양식을 범용으로 다듬어 파는 구조다. 회사 자료를 그대로 쓰면 안 되고, 직접 만든 범용 양식만 팔 수 있다. 만든 뒤 손이 거의 가지 않는다는 점에서 이미지의 취지에 가장 가깝다.",
+      "source": "경제정리노트 26가지",
+      "updated": "2026-10-20"
+    }
+  ]
+}

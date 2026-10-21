@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>미래 먹거리 노트</title>
+<meta name="description" content="어떤 일로 먹고살 것인가. 수익 아이디어를 카드로 모으고 부담과 기대를 나눠 하나씩 따져 보는 노트.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<!--
+  미래 먹거리 노트
+  - 화면은 이 파일, 아이디어 데이터는 ideas.json에 둔다.
+  - 페이지에서 직접 입력한 아이디어는 기본적으로 이 브라우저(localStorage)에만 저장된다.
+    저장 설정에서 GitHub 토큰을 연결하면 저장할 때마다 GitHub API로 ideas.json을 바로 고친다.
+  - ideas.json을 fetch로 읽으므로 로컬에서는 파일을 직접 열지 말고 정적 서버로 연다.
+      python -m http.server 8341 --bind 127.0.0.1   → http://127.0.0.1:8341
+-->
+<style>
+:root {
+  --bg: #f5f2ec;
+  --surface: #fffdf9;
+  --ink: #1d2025;
+  --ink-2: #464b53;
+  --muted: #7a7f87;
+  --line: #e3ddd2;
+  --chip: #f0ebe2;
+  --burden: #c8643a;
+  --gain: #2d7a5c;
+  --danger: #b8402f;
+  --dot-off: #e4ded3;
+  --focus: #2d5f9a;
+  --c-asset: #3866a8;
+  --c-unmanned: #7a5aa6;
+  --c-commerce: #a26d14;
+  --c-content: #23806e;
+  --c-mine: #c0435a;
+  --s-candidate: #858a92;
+  --s-reviewing: #3866a8;
+  --s-testing: #a26d14;
+  --s-active: #2d7a5c;
+  --s-hold: #9a8f86;
+  --shadow-hover: 0 2px 4px rgba(40, 30, 10, .05), 0 10px 24px rgba(40, 30, 10, .08);
+  --shadow-dialog: 0 24px 64px rgba(30, 20, 5, .22);
+  --backdrop: rgba(28, 24, 18, .42);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141619;
+    --surface: #1c1f23;
+    --ink: #ebe8e3;
+    --ink-2: #c4c2bd;
+    --muted: #8d939b;
+    --line: #2d3137;
+    --chip: #24282d;
+    --burden: #e58a5f;
+    --gain: #5cbf95;
+    --danger: #ef7a6b;
+    --dot-off: #353a42;
+    --focus: #7aa7e0;
+    --c-asset: #7ea6e0;
+    --c-unmanned: #b39ae0;
+    --c-commerce: #d9a64e;
+    --c-content: #5cc2ad;
+    --c-mine: #ec8196;
+    --s-candidate: #9aa0a8;
+    --s-reviewing: #7ea6e0;
+    --s-testing: #d9a64e;
+    --s-active: #5cbf95;
+    --s-hold: #8d857e;
+    --shadow-hover: 0 0 0 1px var(--line);
+    --shadow-dialog: 0 24px 64px rgba(0, 0, 0, .5);
+    --backdrop: rgba(0, 0, 0, .6);
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+body:has(dialog[open]) { overflow: hidden; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.emoji { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; line-height: 1; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 36px 16px 64px; }
+@media (min-width: 720px) { .wrap { padding: 48px 28px 80px; } }
+
+/* 머리말 */
+.kicker { margin: 0 0 6px; font-size: 12px; letter-spacing: .14em; color: var(--muted); font-weight: 600; }
+h1 { margin: 0; font-size: clamp(28px, 5vw, 38px); line-height: 1.2; letter-spacing: -.02em; }
+.lead { margin: 8px 0 0; max-width: 44em; color: var(--ink-2); font-size: 15.5px; }
+
+/* 평가 기준 안내(접힘) */
+.guide { margin: 20px 0 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.guide > summary {
+  display: flex; align-items: center; gap: 8px; padding: 11px 16px;
+  font-size: 13.5px; font-weight: 600; color: var(--ink-2); cursor: pointer; list-style: none;
+}
+.guide > summary::-webkit-details-marker { display: none; }
+.guide > summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
+.guide[open] > summary::before { transform: rotate(90deg); }
+.guide > summary small { font-weight: 500; color: var(--muted); }
+.guide-body { display: grid; grid-template-columns: 1fr; gap: 14px 28px; padding: 2px 16px 16px; }
+@media (min-width: 720px) { .guide-body { grid-template-columns: 1fr 1fr; } }
+.guide h2 { margin: 0 0 6px; font-size: 14px; display: flex; gap: 8px; align-items: baseline; color: var(--k); }
+.guide h2 small { font-size: 12px; font-weight: 500; color: var(--muted); }
+.guide dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px; font-size: 13.5px; }
+.guide dt { font-weight: 600; }
+.guide dd { margin: 0; color: var(--ink-2); }
+.guide .note { grid-column: 1 / -1; margin: 0; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 12.5px; color: var(--muted); }
+
+/* 도구 줄 */
+.toolbar { display: flex; flex-direction: column; gap: 10px; }
+.toprow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.search {
+  flex: 1 1 220px; min-width: 0; padding: 8px 12px;
+  font: inherit; font-size: 14px; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 6px 14px;
+  font: inherit; font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; cursor: pointer;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.primary { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+.btn.primary:hover { opacity: .88; }
+.btn.danger { color: var(--danger); }
+.btn:disabled { opacity: .5; cursor: default; }
+.mode-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.mode-dot.on { background: var(--gain); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px;
+  font: inherit; font-size: 13.5px; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px; cursor: pointer;
+}
+.chip:hover { border-color: var(--muted); }
+.chip .sw { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.chip .n { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chip[aria-pressed="true"] { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+.chip[aria-pressed="true"] .n { color: inherit; opacity: .7; }
+.row2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.sort { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); }
+.sort select {
+  padding: 5px 8px; font: inherit; font-size: 13.5px; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+}
+:is(.btn, .chip, .search, .sort select, .icon-btn, summary):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.count { margin: 14px 0 12px; font-size: 13px; color: var(--muted); }
+
+/* 타일 격자: 폭에 따라 한 줄 2~6개 */
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 500px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 720px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 940px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (min-width: 1120px) { .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.tile {
+  display: flex; flex-direction: column; min-width: 0; padding: 0; overflow: hidden;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
+.tile:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.tile.is-hold { opacity: .62; }
+.tile-art {
+  position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 16 / 10; overflow: hidden;
+  background: color-mix(in srgb, var(--c) 13%, var(--surface));
+}
+.tile-art .emoji { font-size: clamp(34px, 4vw, 44px); }
+.tile-art img { width: 100%; height: 100%; object-fit: cover; }
+.flag {
+  position: absolute; top: 7px; padding: 0 6px; font-size: 10.5px; line-height: 17px;
+  color: var(--muted); background: var(--surface); border: 1px dashed var(--muted); border-radius: 999px;
+}
+.flag.draft { left: 7px; }
+.flag.local { right: 7px; color: var(--focus); border: 1px solid currentColor; }
+.tile-body { display: flex; flex: 1; flex-direction: column; gap: 5px; padding: 9px 11px 11px; }
+.tile-title {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 14px; font-weight: 700; line-height: 1.35; letter-spacing: -.01em;
+}
+.tile-title .no { margin-right: 4px; font-size: 11.5px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tile-meta { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11.5px; color: var(--muted); }
+.tile-meta .cat { font-weight: 700; color: var(--c); }
+.tile-meta .st::before {
+  content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 4px 1px 0;
+  vertical-align: middle; border-radius: 50%; background: var(--s);
+}
+.meters { display: grid; gap: 3px; margin-top: auto; padding-top: 3px; }
+.meter { display: grid; grid-template-columns: 2.1em 1fr; align-items: center; gap: 6px; font-size: 10.5px; color: var(--muted); }
+.meter .bar { height: 5px; overflow: hidden; background: var(--dot-off); border-radius: 3px; }
+.meter .bar i { display: block; height: 100%; background: var(--k); border-radius: inherit; }
+.meter.burden { --k: var(--burden); }
+.meter.gain { --k: var(--gain); }
+.empty {
+  grid-column: 1 / -1; margin: 0; padding: 40px 16px; text-align: center;
+  color: var(--muted); border: 1px dashed var(--line); border-radius: 14px;
+}
+.foot { margin-top: 40px; font-size: 12.5px; color: var(--muted); }
+.foot a { color: inherit; }
+
+/* 대화상자 공통 */
+dialog {
+  width: min(600px, calc(100vw - 32px)); max-width: none; max-height: none; padding: 0; overflow: hidden;
+  color: var(--ink); background: var(--surface); border: 0; border-radius: 18px; box-shadow: var(--shadow-dialog);
+}
+dialog::backdrop { background: var(--backdrop); }
+.dlg { display: flex; flex-direction: column; max-height: calc(100dvh - 48px); margin: 0; }
+.dlg-head { display: flex; align-items: center; gap: 14px; padding: 16px 18px 14px; border-bottom: 1px solid var(--line); }
+.dlg-head h2 { flex: 1; margin: 0; font-size: 17px; }
+.dlg-body { display: grid; gap: 14px; padding: 16px 18px; overflow: auto; overscroll-behavior: contain; }
+.dlg-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--line); }
+.icon-btn {
+  flex: none; width: 34px; height: 34px; padding: 0;
+  font: inherit; font-size: 22px; line-height: 1; color: var(--muted);
+  background: transparent; border: 0; border-radius: 10px; cursor: pointer;
+}
+.icon-btn:hover { color: var(--ink); background: var(--chip); }
+@media (max-width: 560px) {
+  dialog { width: 100vw; margin: auto 0 0; border-radius: 18px 18px 0 0; }
+  .dlg { max-height: 92dvh; }
+  .dlg-foot { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+}
+
+/* 상세 */
+.detail-head { align-items: flex-start; }
+.d-art {
+  display: grid; place-items: center; flex: none; width: 64px; height: 64px; overflow: hidden; border-radius: 16px;
+  background: color-mix(in srgb, var(--c) 14%, var(--surface));
+}
+.d-art .emoji { font-size: 36px; }
+.d-art img { width: 100%; height: 100%; object-fit: cover; }
+.d-titles { display: grid; flex: 1; gap: 4px; min-width: 0; }
+.d-title { margin: 0; display: flex; gap: 8px; align-items: baseline; font-size: 20px; line-height: 1.3; letter-spacing: -.01em; }
+.d-title .no { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; }
+.meta .cat { margin-right: 2px; font-weight: 700; color: var(--c); }
+.meta .status { padding: 0 8px; font-weight: 600; color: var(--s); border: 1px solid currentColor; border-radius: 999px; }
+.meta .draft { padding: 0 7px; color: var(--muted); border: 1px dashed var(--muted); border-radius: 999px; }
+.meta .local { padding: 0 7px; color: var(--focus); border: 1px solid currentColor; border-radius: 999px; }
+.d-summary { margin: 0; font-size: 15px; color: var(--ink-2); }
+.scores { display: grid; gap: 10px 22px; padding: 12px 14px; background: var(--bg); border-radius: 12px; }
+@media (min-width: 440px) { .scores { grid-template-columns: 1fr 1fr; } }
+.group.burden { --k: var(--burden); }
+.group.gain { --k: var(--gain); }
+.group-label { display: flex; gap: 6px; align-items: baseline; margin-bottom: 2px; font-size: 12px; font-weight: 700; color: var(--k); }
+.group-label small { font-weight: 500; color: var(--muted); }
+.srow { display: grid; grid-template-columns: 4.6em auto; align-items: center; gap: 8px; font-size: 13px; line-height: 1.85; color: var(--ink-2); }
+.dots { display: inline-flex; gap: 4px; }
+.dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--dot-off); }
+.dots i.on { background: var(--k); }
+.next { margin: 0; padding: 9px 12px; font-size: 14px; background: var(--chip); border-radius: 10px; }
+.next b { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.d-note h3 { margin: 0 0 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.d-note p { margin: 0; font-size: 14px; color: var(--ink-2); white-space: pre-line; }
+.d-note p.placeholder { color: var(--muted); }
+.d-info { margin: 0; font-size: 12px; color: var(--muted); }
+
+/* 입력 양식 */
+.field { display: grid; gap: 5px; min-width: 0; font-size: 13px; }
+.field > span { font-weight: 600; color: var(--ink-2); }
+.field em { margin-left: 4px; font-size: 11.5px; font-style: normal; font-weight: 500; color: var(--burden); }
+.field small { margin-left: 4px; font-weight: 400; color: var(--muted); }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 8px 10px; font: inherit; font-size: 14px; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+}
+.field textarea { min-height: 96px; resize: vertical; line-height: 1.55; }
+.field :is(input, select, textarea):focus { outline: 2px solid var(--focus); outline-offset: 0; border-color: transparent; }
+.row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.row.icon-row { grid-template-columns: 76px 1fr; }
+.icon-row input[name="icon"] { padding: 4px; font-size: 22px; text-align: center; }
+.picks { display: flex; flex-wrap: wrap; gap: 4px; margin-top: -6px; }
+.picks button {
+  width: 34px; height: 34px; padding: 0; font-size: 18px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+}
+.picks button:hover { border-color: var(--muted); }
+.rates { display: grid; gap: 10px 20px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; }
+@media (min-width: 520px) { .rates { grid-template-columns: 1fr 1fr; } }
+.rate { display: grid; grid-template-columns: 4.6em auto 1fr; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.pips { display: inline-flex; }
+.pip { position: relative; display: grid; place-items: center; width: 26px; height: 26px; cursor: pointer; } /* 숨긴 라디오가 점 안에 머물도록 relative */
+.pip span { width: 14px; height: 14px; border-radius: 50%; background: var(--dot-off); transition: transform .1s ease; }
+.pip.on span { background: var(--k); }
+.pip:hover span { transform: scale(1.18); }
+.pip input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+.rate-val { font-size: 11.5px; color: var(--muted); }
+.check { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
+.check input { width: 16px; height: 16px; accent-color: var(--ink); }
+.form-err { margin: 0; font-size: 13px; color: var(--danger); }
+.save-hint { margin-right: auto; font-size: 12px; color: var(--muted); }
+@media (max-width: 520px) { .row:not(.icon-row) { grid-template-columns: 1fr; } }
+
+/* 저장 설정 */
+.mode-line { margin: 0; padding: 10px 12px; font-size: 13.5px; background: var(--chip); border-radius: 10px; }
+.set-msg { margin: 0; font-size: 13px; color: var(--ink-2); }
+.set-msg.error { color: var(--danger); }
+.set-sec { display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+.set-sec h3 { margin: 0; font-size: 14px; }
+.set-sec p { margin: 0; font-size: 13px; color: var(--ink-2); }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.howto { font-size: 13px; color: var(--ink-2); }
+.howto summary { color: var(--focus); cursor: pointer; }
+.howto ol { display: grid; gap: 4px; margin: 8px 0; padding-left: 20px; }
+.howto a { color: var(--focus); }
+
+/* 알림 */
+.toast {
+  position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 10;
+  max-width: min(560px, calc(100vw - 32px)); padding: 10px 16px; transform: translateX(-50%);
+  font-size: 13.5px; color: var(--bg); background: var(--ink); border-radius: 12px; box-shadow: var(--shadow-dialog);
+}
+.toast.error { color: #fff; background: var(--danger); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">FUTURE INCOME NOTES</p>
+    <h1>미래 먹거리 노트</h1>
+    <p class="lead">어떤 일로 먹고살 것인가. 떠오른 수익 아이디어를 카드로 모으고, 부담과 기대를 나눠 하나씩 따져 본다.</p>
+  </header>
+
+  <details class="guide">
+    <summary>평가 기준 <small>부담 4가지 · 기대 2가지</small></summary>
+    <div class="guide-body">
+      <div style="--k: var(--burden)">
+        <h2>부담 <small>점이 적을수록 가볍다</small></h2>
+        <dl>
+          <dt>초기 자본</dt><dd>시작하는 데 드는 돈</dd>
+          <dt>투입 시간</dt><dd>첫 수익이 나기까지 들이는 시간</dd>
+          <dt>유지 노력</dt><dd>굴러가기 시작한 뒤에도 계속 드는 손</dd>
+          <dt>리스크</dt><dd>돈을 잃거나 접게 될 가능성</dd>
+        </dl>
+      </div>
+      <div style="--k: var(--gain)">
+        <h2>기대 <small>점이 많을수록 좋다</small></h2>
+        <dl>
+          <dt>역량 적합</dt><dd>지금 가진 경험·도구와 맞는 정도</dd>
+          <dt>수익 규모</dt><dd>잘 됐을 때 기대할 수 있는 크기</dd>
+        </dl>
+      </div>
+      <p class="note">1~26번은 카드뉴스 「한 번 만들어두면 계속 돈 들어오는 수익 구조 26가지」(경제정리노트) 목록을 바탕으로 쓴 일반론 초안이다. 직접 검토를 마치면 ‘초안’ 표시를 지운다. 타일 아래 막대는 부담·기대 점수의 평균이고, 종합 순 정렬은 기대 합계에서 부담 합계의 절반을 뺀 값으로 매긴다.</p>
+    </div>
+  </details>
+
+  <div class="toolbar">
+    <div class="toprow">
+      <input type="search" class="search" id="q" placeholder="이름·설명·메모 검색" aria-label="아이디어 검색">
+      <button type="button" class="btn primary" id="addBtn">＋ 아이디어 추가</button>
+      <button type="button" class="btn" id="setBtn" aria-haspopup="dialog"><span class="mode-dot" id="modeDot"></span><span id="modeText">저장: 이 기기</span></button>
+    </div>
+    <div class="chips" id="catChips" role="group" aria-label="분류로 거르기"></div>
+    <div class="row2">
+      <div class="chips" id="statusChips" role="group" aria-label="상태로 거르기"></div>
+      <label class="sort">정렬
+        <select id="sort">
+          <option value="no">번호순</option>
+          <option value="total">종합 순</option>
+          <option value="fit">역량 적합 높은 순</option>
+          <option value="upkeep">유지 노력 적은 순</option>
+          <option value="capital">초기 자본 적은 순</option>
+          <option value="recent">최근 수정 순</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <p class="count" id="count" aria-live="polite"></p>
+  <main class="grid" id="grid"><p class="empty">불러오는 중…</p></main>
+
+  <footer class="foot">
+    마지막 수정 <span id="updated">-</span> ·
+    <a href="https://github.com/lodeym/future-income">저장소</a>
+  </footer>
+</div>
+
+<!-- 상세 보기: 내용은 스크립트가 채운다 -->
+<dialog id="detail" aria-labelledby="dTitle">
+  <div class="dlg" id="detailInner"></div>
+</dialog>
+
+<!-- 추가·수정 양식 -->
+<dialog id="editor" aria-labelledby="eTitle">
+  <form class="dlg" id="editForm" novalidate>
+    <div class="dlg-head">
+      <h2 id="eTitle">아이디어 추가</h2>
+      <button type="button" class="icon-btn" data-close aria-label="닫기">×</button>
+    </div>
+    <div class="dlg-body">
+      <div class="row icon-row">
+        <label class="field"><span>아이콘</span><input type="text" name="icon" class="emoji" maxlength="8" placeholder="💡" autocomplete="off"></label>
+        <label class="field"><span>이름<em>필수</em></span><input type="text" name="title" maxlength="60" autocomplete="off"></label>
+      </div>
+      <div class="picks" id="picks" role="group" aria-label="아이콘 빠른 선택"></div>
+      <div class="row">
+        <label class="field"><span>분류</span><select name="category"></select></label>
+        <label class="field"><span>상태</span><select name="status"></select></label>
+      </div>
+      <label class="field"><span>한 줄 설명</span><input type="text" name="summary" maxlength="120" autocomplete="off"></label>
+      <div class="field"><span>평가 <small>점을 눌러 1~5점</small></span><div class="rates" id="rates"></div></div>
+      <label class="field"><span>다음 행동</span><input type="text" name="next" maxlength="120" autocomplete="off"></label>
+      <label class="field"><span>고민 메모</span><textarea name="note" rows="5"></textarea></label>
+      <label class="field"><span>이미지 주소<small>선택 · 넣으면 아이콘 대신 표시</small></span><input type="url" name="image" placeholder="https://…" autocomplete="off"></label>
+      <label class="check"><input type="checkbox" name="draft"> 초안 (아직 직접 검토하지 않음)</label>
+      <p class="form-err" id="formErr" role="alert" hidden></p>
+    </div>
+    <div class="dlg-foot">
+      <span class="save-hint" id="saveHint"></span>
+      <button type="button" class="btn" data-close>취소</button>
+      <button type="submit" class="btn primary" id="saveBtn">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- 저장 설정 -->
+<dialog id="settings" aria-labelledby="sTitle">
+  <div class="dlg">
+    <div class="dlg-head">
+      <h2 id="sTitle">저장 설정</h2>
+      <button type="button" class="icon-btn" data-close aria-label="닫기">×</button>
+    </div>
+    <div class="dlg-body">
+      <p class="mode-line" id="modeLine"></p>
+      <p class="set-msg" id="setMsg" role="status" hidden></p>
+      <section class="set-sec">
+        <h3>GitHub에 바로 저장</h3>
+        <p>토큰을 연결하면 저장할 때마다 저장소의 <code>ideas.json</code>이 바로 고쳐집니다. 다른 기기와 공개 페이지에도 반영되며, 공개 페이지는 1~2분 뒤에 바뀝니다. 토큰은 이 브라우저에만 보관됩니다.</p>
+        <label class="field"><span>GitHub 토큰</span><input type="password" id="tokenInput" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></label>
+        <div class="btns">
+          <button type="button" class="btn primary" id="connectBtn">연결</button>
+          <button type="button" class="btn danger" id="disconnectBtn">연결 해제</button>
+        </div>
+        <details class="howto">
+          <summary>토큰 만드는 법</summary>
+          <ol>
+            <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Fine-grained token 만들기</a> 화면을 엽니다.</li>
+            <li>Repository access에서 <b>Only select repositories</b>를 고르고 <b>future-income</b>만 선택합니다.</li>
+            <li>Permissions의 Repository permissions에서 <b>Contents</b>를 <b>Read and write</b>로 바꿉니다.</li>
+            <li>만료 기간을 정해 생성한 뒤, 토큰을 위 칸에 붙여 넣고 연결을 누릅니다.</li>
+          </ol>
+          <p>이 저장소 하나의 파일만 고칠 수 있는 토큰이라 다른 저장소에는 영향이 없습니다. 공용 PC에서는 연결하지 마세요.</p>
+        </details>
+      </section>
+      <section class="set-sec">
+        <h3>이 기기에만 저장된 내용</h3>
+        <p id="localLine"></p>
+        <div class="btns">
+          <button type="button" class="btn" id="uploadBtn">GitHub에 올리기</button>
+          <button type="button" class="btn" id="exportBtn">JSON 복사</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ── 설정값 ──────────────────────────────────────────────
+  const REPO = { owner: 'lodeym', name: 'future-income', branch: 'main', path: 'ideas.json' };
+  const LS_TOKEN = 'future-income.token';
+  const LS_LOCAL = 'future-income.local';
+
+  const CATEGORIES = [
+    { id: 'all', label: '전체' },
+    { id: 'asset', label: '자산 투자' },
+    { id: 'unmanned', label: '무인·임대' },
+    { id: 'commerce', label: '커머스' },
+    { id: 'content', label: '디지털 콘텐츠' },
+    { id: 'mine', label: '내 아이디어' },
+  ];
+  const STATUSES = [
+    { id: 'all', label: '모든 상태' },
+    { id: 'candidate', label: '후보' },
+    { id: 'reviewing', label: '검토 중' },
+    { id: 'testing', label: '시험 중' },
+    { id: 'active', label: '진행 중' },
+    { id: 'hold', label: '보류' },
+  ];
+  const BURDEN = [['capital', '초기 자본'], ['time', '투입 시간'], ['upkeep', '유지 노력'], ['risk', '리스크']];
+  const GAIN = [['fit', '역량 적합'], ['income', '수익 규모']];
+  const CRITERIA = [...BURDEN, ...GAIN];
+  const PICKS = ['💡', '📈', '🏠', '📦', '🛒', '🎓', '📘', '🎬', '📷', '🧰', '🚚', '🤖', '🧾', '🍱', '🌱', '🔧'];
+  // ideas.json에 쓰는 필드 순서. 저장할 때 이 순서로 맞춰 diff가 깔끔하게 남도록 한다.
+  const FIELD_ORDER = ['no', 'title', 'icon', 'image', 'category', 'status', 'draft', 'summary', 'scores', 'next', 'note', 'source', 'updated'];
+
+  // ── 저장소(localStorage) ────────────────────────────────
+  // 사생활 보호 모드 등에서는 localStorage가 막힐 수 있어 항상 try로 감싼다.
+  const store = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem(key); return v == null ? fallback : JSON.parse(v); } catch { return fallback; }
+    },
+    set(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; }
+    },
+    remove(key) {
+      try { localStorage.removeItem(key); } catch { /* 지울 수 없으면 그대로 둔다 */ }
+    },
+  };
+
+  // ── 상태 ────────────────────────────────────────────────
+  const state = { cat: 'all', status: 'all', sort: 'no', q: '' };
+  let remote = { updated: '', ideas: [] }; // ideas.json 내용
+  let token = String(store.get(LS_TOKEN, '') || '');
+  let local = store.get(LS_LOCAL, {});      // 이 기기에만 저장된 아이디어 { no: idea }
+  if (!local || typeof local !== 'object' || Array.isArray(local)) local = {};
+  let mode = 'local';                       // 'local' | 'github'
+  let ideas = [];                           // remote와 local을 합친 화면용 목록
+  let editingNo = null;
+
+  // ── 작은 도우미 ─────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+  const F = (name) => $('editForm').elements.namedItem(name);
+
+  // DOM 생성 도우미. 텍스트는 항상 textContent로 넣어 데이터에 HTML이 섞여도 그대로 표시된다.
+  function el(tag, props = {}, children = []) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (v == null || v === false) continue;
+      if (k === 'class') node.className = v;
+      else if (k === 'text') node.textContent = v;
+      else node.setAttribute(k, v === true ? '' : v);
+    }
+    for (const c of [].concat(children)) if (c != null && c !== false) node.append(c);
+    return node;
+  }
+  function button(cls, text, onClick) {
+    const b = el('button', { type: 'button', class: cls, text });
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  const today = () => new Date().toLocaleDateString('sv-SE'); // 로컬 시간대 기준 YYYY-MM-DD
+  const score = (idea, key) => Math.max(0, Math.min(5, Math.round(Number(idea.scores && idea.scores[key]) || 0)));
+  const sum = (idea, list) => list.reduce((acc, [key]) => acc + score(idea, key), 0);
+  const total = (idea) => sum(idea, GAIN) - sum(idea, BURDEN) / 2;
+  const labelOf = (list, id) => (list.find((x) => x.id === id) || {}).label || id;
+  const catOf = (idea) => (CATEGORIES.some((c) => c.id !== 'all' && c.id === idea.category) ? idea.category : 'mine');
+  const statusOf = (idea) => (STATUSES.some((s) => s.id !== 'all' && s.id === idea.status) ? idea.status : 'candidate');
+  const safeImage = (u) => {
+    const s = typeof u === 'string' ? u.trim() : '';
+    return /^(https?:\/\/|\.{0,2}\/|[\w-]+\/)/i.test(s) ? s : '';
+  };
+
+  const SORTS = {
+    no: (a, b) => (Number(a.no) || 0) - (Number(b.no) || 0),
+    total: (a, b) => total(b) - total(a) || SORTS.no(a, b),
+    fit: (a, b) => score(b, 'fit') - score(a, 'fit') || score(b, 'income') - score(a, 'income') || SORTS.no(a, b),
+    upkeep: (a, b) => score(a, 'upkeep') - score(b, 'upkeep') || score(a, 'time') - score(b, 'time') || SORTS.no(a, b),
+    capital: (a, b) => score(a, 'capital') - score(b, 'capital') || SORTS.no(a, b),
+    recent: (a, b) => String(b.updated || '').localeCompare(String(a.updated || '')) || SORTS.no(b, a),
+  };
+
+  let toastTimer;
+  function toast(message, isError = false) {
+    const t = $('toast');
+    t.textContent = message;
+    t.classList.toggle('error', isError);
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, isError ? 7000 : 4000);
+  }
+
+  // ── 데이터 합치기 ───────────────────────────────────────
+  function merge() {
+    const map = new Map();
+    for (const i of Array.isArray(remote.ideas) ? remote.ideas : []) map.set(Number(i.no), { ...i, no: Number(i.no) });
+    for (const [key, i] of Object.entries(local)) {
+      const no = Number(key);
+      map.set(no, { ...i, no, _local: true, _overrides: map.has(no) });
+    }
+    ideas = [...map.values()];
+  }
+  const nextNo = (list = ideas) => Math.max(0, ...list.map((i) => Number(i.no) || 0)) + 1;
+
+  // 저장용으로 필드 순서를 맞추고 빈 선택 필드는 뺀다.
+  function clean(idea) {
+    const out = {};
+    for (const k of FIELD_ORDER) {
+      const v = idea[k];
+      if (v === undefined) continue;
+      if (['icon', 'image', 'source'].includes(k) && !v) continue;
+      out[k] = v;
+    }
+    return out;
+  }
+  function upsert(list, idea) {
+    const idx = list.findIndex((i) => Number(i.no) === idea.no);
+    if (idx >= 0) list[idx] = idea; else list.push(idea);
+  }
+  function persistLocal() {
+    if (Object.keys(local).length) return store.set(LS_LOCAL, local);
+    store.remove(LS_LOCAL);
+    return true;
+  }
+
+  // ── GitHub API ──────────────────────────────────────────
+  const b64encode = (str) => {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  };
+  const b64decode = (b64) => new TextDecoder().decode(Uint8Array.from(atob(String(b64).replace(/\s/g, '')), (c) => c.charCodeAt(0)));
+
+  async function gh(path, { method = 'GET', body, auth = token } = {}) {
+    const headers = { Accept: 'application/vnd.github+json', Authorization: `Bearer ${auth}` };
+    if (body) headers['Content-Type'] = 'application/json';
+    const res = await fetch(`https://api.github.com/repos/${REPO.owner}/${REPO.name}${path}`, { method, body, headers, cache: 'no-store' });
+    if (!res.ok) {
+      let msg = `HTTP ${res.status}`;
+      try { const b = await res.json(); if (b && b.message) msg = b.message; } catch { /* 본문 없음 */ }
+      const err = new Error(msg);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+  function explain(err) {
+    const hints = {
+      401: '토큰이 올바르지 않거나 만료되었습니다.',
+      403: '토큰에 Contents 쓰기 권한이 없거나 요청이 제한되었습니다.',
+      404: '저장소나 ideas.json을 찾지 못했습니다. 토큰의 저장소 범위를 확인해 주세요.',
+      409: '다른 곳에서 동시에 고쳐 충돌했습니다. 잠시 뒤 다시 저장해 주세요.',
+      422: 'GitHub가 요청 형식을 거부했습니다.',
+    };
+    return hints[err.status] || err.message || '알 수 없는 오류';
+  }
+  async function pullRemote(auth = token) {
+    const f = await gh(`/contents/${REPO.path}?ref=${REPO.branch}`, { auth });
+    const data = JSON.parse(b64decode(f.content));
+    if (!Array.isArray(data.ideas)) data.ideas = [];
+    return { data, sha: f.sha };
+  }
+  // 최신본을 받아 고친 뒤 올린다. 그 사이 다른 곳에서 바뀌어 충돌(409)이 나면 한 번 더 시도한다.
+  async function saveToGitHub(mutate, message) {
+    for (let attempt = 0; ; attempt++) {
+      const fresh = await pullRemote();
+      mutate(fresh.data);
+      fresh.data.updated = today();
+      const content = b64encode(JSON.stringify(fresh.data, null, 2) + '\n');
+      try {
+        await gh(`/contents/${REPO.path}`, {
+          method: 'PUT',
+          body: JSON.stringify({ message, content, sha: fresh.sha, branch: REPO.branch }),
+        });
+        remote = fresh.data;
+        return;
+      } catch (err) {
+        if (err.status !== 409 || attempt >= 1) throw err;
+      }
+    }
+  }
+  async function loadPublic() {
+    const res = await fetch('ideas.json', { cache: 'no-cache' }); // Pages 캐시 때문에 매번 새로 확인
+    if (!res.ok) throw new Error(`ideas.json을 불러오지 못했습니다 (HTTP ${res.status})`);
+    remote = await res.json();
+  }
+
+  // ── 그리기: 칩·타일 ─────────────────────────────────────
+  function matches(idea) {
+    if (state.cat !== 'all' && catOf(idea) !== state.cat) return false;
+    if (state.status !== 'all' && statusOf(idea) !== state.status) return false;
+    if (!state.q) return true;
+    const hay = [idea.title, idea.summary, idea.next, idea.note].join(' ').toLowerCase();
+    return hay.includes(state.q);
+  }
+
+  // 분류 칩 개수는 현재 상태 필터 기준, 상태 칩 개수는 현재 분류 필터 기준으로 센다.
+  function renderChips() {
+    const inStatus = ideas.filter((i) => state.status === 'all' || statusOf(i) === state.status);
+    const inCat = ideas.filter((i) => state.cat === 'all' || catOf(i) === state.cat);
+    $('catChips').replaceChildren(...CATEGORIES.map((c) => {
+      const n = c.id === 'all' ? inStatus.length : inStatus.filter((i) => catOf(i) === c.id).length;
+      const b = el('button', { type: 'button', class: 'chip', 'aria-pressed': String(state.cat === c.id) }, [
+        c.id === 'all' ? null : el('span', { class: 'sw', style: `--c: var(--c-${c.id})`, 'aria-hidden': 'true' }),
+        c.label, el('span', { class: 'n', text: String(n) }),
+      ]);
+      b.addEventListener('click', () => { state.cat = c.id; render(); });
+      return b;
+    }));
+    $('statusChips').replaceChildren(...STATUSES.map((s) => {
+      const n = s.id === 'all' ? inCat.length : inCat.filter((i) => statusOf(i) === s.id).length;
+      const b = el('button', { type: 'button', class: 'chip', 'aria-pressed': String(state.status === s.id) }, [
+        s.label, el('span', { class: 'n', text: String(n) }),
+      ]);
+      b.addEventListener('click', () => { state.status = s.id; render(); });
+      return b;
+    }));
+  }
+
+  // 이미지 주소가 있으면 이미지, 없거나 못 불러오면 아이콘(없으면 이름 첫 글자)을 쓴다.
+  function artContent(idea) {
+    const fallback = () => el('span', { class: 'emoji', 'aria-hidden': 'true', text: idea.icon || String(idea.title || '?').slice(0, 1) });
+    const src = safeImage(idea.image);
+    if (!src) return fallback();
+    const img = el('img', { src, alt: '', loading: 'lazy' });
+    img.addEventListener('error', () => img.replaceWith(fallback()), { once: true });
+    return img;
+  }
+  const art = (idea, cls) => el('span', { class: cls }, artContent(idea));
+
+  function meter(kind, label, value) {
+    return el('span', { class: `meter ${kind}` }, [
+      el('span', { text: label }),
+      el('span', { class: 'bar' }, el('i', { style: `width:${Math.round((value / 5) * 100)}%` })),
+    ]);
+  }
+
+  function tile(idea) {
+    const cat = catOf(idea);
+    const status = statusOf(idea);
+    const t = el('button', {
+      type: 'button',
+      class: `tile${status === 'hold' ? ' is-hold' : ''}`,
+      style: `--c: var(--c-${cat}); --s: var(--s-${status})`,
+      'aria-haspopup': 'dialog',
+      'aria-label': [`${idea.no}. ${idea.title || '(이름 없음)'}`, labelOf(CATEGORIES, cat), labelOf(STATUSES, status),
+        idea.draft && '초안', idea._local && '이 기기에만 저장'].filter(Boolean).join(', '),
+    }, [
+      el('span', { class: 'tile-art' }, [
+        artContent(idea),
+        idea.draft ? el('span', { class: 'flag draft', text: '초안' }) : null,
+        idea._local ? el('span', { class: 'flag local', text: '이 기기' }) : null,
+      ]),
+      el('span', { class: 'tile-body' }, [
+        el('span', { class: 'tile-title' }, [el('span', { class: 'no', text: String(idea.no) }), idea.title || '(이름 없음)']),
+        el('span', { class: 'tile-meta' }, [
+          el('span', { class: 'cat', text: labelOf(CATEGORIES, cat) }),
+          el('span', { class: 'st', text: labelOf(STATUSES, status) }),
+        ]),
+        el('span', { class: 'meters', 'aria-hidden': 'true' }, [
+          meter('burden', '부담', sum(idea, BURDEN) / BURDEN.length),
+          meter('gain', '기대', sum(idea, GAIN) / GAIN.length),
+        ]),
+      ]),
+    ]);
+    t.addEventListener('click', () => openDetail(idea.no));
+    return t;
+  }
+
+  function render() {
+    renderChips();
+    const shown = ideas.filter(matches).sort(SORTS[state.sort] || SORTS.no);
+    $('count').textContent = `${ideas.length}개 중 ${shown.length}개 표시`;
+    $('updated').textContent = remote.updated || '-';
+    $('grid').replaceChildren(...(shown.length
+      ? shown.map(tile)
+      : [el('p', { class: 'empty', text: state.q ? `‘${state.q}’에 맞는 아이디어가 없습니다.` : '이 조건에 맞는 아이디어가 아직 없습니다.' })]));
+    renderMode();
+  }
+
+  function renderMode() {
+    const n = Object.keys(local).length;
+    $('modeDot').classList.toggle('on', mode === 'github');
+    $('modeText').textContent = (mode === 'github' ? '저장: GitHub' : '저장: 이 기기') + (n ? ` · 미반영 ${n}` : '');
+    $('modeLine').textContent = mode === 'github'
+      ? `GitHub에 연결되어 있습니다. 저장하면 ${REPO.owner}/${REPO.name}의 ideas.json이 바로 고쳐집니다.`
+      : '지금은 이 브라우저에만 저장됩니다. 다른 기기나 공개 페이지에는 보이지 않습니다.';
+    $('localLine').textContent = n
+      ? `${n}개 항목이 이 브라우저에만 있습니다: ${Object.values(local).map((i) => i.title).join(', ')}`
+      : '이 브라우저에만 있는 항목은 없습니다.';
+    $('uploadBtn').disabled = !(mode === 'github' && n);
+    $('exportBtn').disabled = !n;
+    $('disconnectBtn').hidden = !token;
+  }
+
+  // ── 상세 보기 ───────────────────────────────────────────
+  function dots(n) {
+    const wrap = el('span', { class: 'dots', role: 'img', 'aria-label': n ? `5점 중 ${n}점` : '미평가' });
+    for (let i = 1; i <= 5; i++) wrap.append(el('i', { class: i <= n ? 'on' : null }));
+    return wrap;
+  }
+  function scoreGroup(kind, title, hint, items, idea) {
+    return el('div', { class: `group ${kind}` }, [
+      el('div', { class: 'group-label' }, [title, el('small', { text: hint })]),
+      ...items.map(([key, name]) => el('div', { class: 'srow' }, [el('span', { text: name }), dots(score(idea, key))])),
+    ]);
+  }
+
+  function openDetail(no) {
+    const idea = ideas.find((i) => i.no === no);
+    if (!idea) return;
+    const cat = catOf(idea);
+    const status = statusOf(idea);
+    const inner = $('detailInner');
+    inner.style.setProperty('--c', `var(--c-${cat})`);
+
+    const actions = [];
+    if (idea._local) {
+      actions.push(button('btn danger', idea._overrides ? '이 기기 수정 취소' : '이 기기에서 삭제', () => discardLocal(no)));
+    }
+    actions.push(button('btn', '수정', () => { $('detail').close(); openEditor(no); }));
+    actions.push(button('btn primary', '닫기', () => $('detail').close()));
+
+    inner.replaceChildren(
+      el('div', { class: 'dlg-head detail-head' }, [
+        art(idea, 'd-art'),
+        el('div', { class: 'd-titles' }, [
+          el('div', { class: 'meta' }, [
+            el('span', { class: 'cat', text: labelOf(CATEGORIES, cat) }),
+            el('span', { class: 'status', style: `--s: var(--s-${status})`, text: labelOf(STATUSES, status) }),
+            idea.draft ? el('span', { class: 'draft', text: '초안' }) : null,
+            idea._local ? el('span', { class: 'local', text: '이 기기에만 저장' }) : null,
+          ]),
+          el('h2', { class: 'd-title', id: 'dTitle' }, [el('span', { class: 'no', text: String(idea.no) }), idea.title || '(이름 없음)']),
+        ]),
+        el('button', { type: 'button', class: 'icon-btn', 'aria-label': '닫기', 'data-close': true }, '×'),
+      ]),
+      el('div', { class: 'dlg-body' }, [
+        idea.summary ? el('p', { class: 'd-summary', text: idea.summary }) : null,
+        el('div', { class: 'scores' }, [
+          scoreGroup('burden', '부담', '적을수록 가벼움', BURDEN, idea),
+          scoreGroup('gain', '기대', '많을수록 좋음', GAIN, idea),
+        ]),
+        idea.next ? el('p', { class: 'next' }, [el('b', { text: '다음 행동' }), idea.next]) : null,
+        el('section', { class: 'd-note' }, [
+          el('h3', { text: '고민 메모' }),
+          idea.note ? el('p', { text: idea.note }) : el('p', { class: 'placeholder', text: '아직 메모가 없습니다. 수정을 눌러 적어 보세요.' }),
+        ]),
+        el('p', { class: 'd-info', text: [idea.source && `출처 ${idea.source}`, idea.updated && `수정 ${idea.updated}`].filter(Boolean).join(' · ') }),
+      ]),
+      el('div', { class: 'dlg-foot' }, actions),
+    );
+    $('detail').showModal();
+    inner.querySelector('.dlg-body').scrollTop = 0;
+  }
+
+  function discardLocal(no) {
+    const idea = local[no];
+    if (!idea) return;
+    const what = ideas.find((i) => i.no === no)?._overrides ? '이 기기에서 고친 내용을 버리고 원래 내용으로 되돌릴까요?' : '이 기기에만 저장된 이 아이디어를 지울까요?';
+    if (!confirm(`‘${idea.title}’: ${what}`)) return;
+    delete local[no];
+    persistLocal();
+    merge();
+    render();
+    $('detail').close();
+    toast('이 기기 저장분을 지웠습니다.');
+  }
+
+  // ── 추가·수정 양식 ──────────────────────────────────────
+  function buildForm() {
+    F('category').replaceChildren(...CATEGORIES.filter((c) => c.id !== 'all').map((c) => el('option', { value: c.id, text: c.label })));
+    F('status').replaceChildren(...STATUSES.filter((s) => s.id !== 'all').map((s) => el('option', { value: s.id, text: s.label })));
+    $('picks').replaceChildren(...PICKS.map((p) => {
+      const b = el('button', { type: 'button', class: 'emoji', 'aria-label': `아이콘 ${p}`, text: p });
+      b.addEventListener('click', () => { F('icon').value = p; });
+      return b;
+    }));
+    const groupBox = (kind, title, hint, items) => el('div', { class: `group ${kind}` }, [
+      el('div', { class: 'group-label' }, [title, el('small', { text: hint })]),
+      ...items.map(([key, name]) => {
+        const pips = el('span', { class: 'pips' });
+        for (let v = 1; v <= 5; v++) {
+          const input = el('input', { type: 'radio', name: `r-${key}`, value: String(v), class: 'sr-only', 'aria-label': `${name} ${v}점` });
+          input.addEventListener('change', () => setRate(key, v));
+          pips.append(el('label', { class: 'pip' }, [input, el('span', { 'aria-hidden': 'true' })]));
+        }
+        return el('div', { class: 'rate', role: 'radiogroup', 'aria-label': name, 'data-key': key }, [
+          el('span', { text: name }), pips, el('span', { class: 'rate-val', text: '미정' }),
+        ]);
+      }),
+    ]);
+    $('rates').replaceChildren(
+      groupBox('burden', '부담', '적을수록 가벼움', BURDEN),
+      groupBox('gain', '기대', '많을수록 좋음', GAIN),
+    );
+  }
+  function setRate(key, v) {
+    const g = $('rates').querySelector(`[data-key="${key}"]`);
+    g.dataset.value = String(v);
+    g.querySelectorAll('.pip').forEach((p, i) => p.classList.toggle('on', i < v));
+    g.querySelectorAll('input').forEach((inp) => { inp.checked = Number(inp.value) === v; });
+    g.querySelector('.rate-val').textContent = v ? `${v}점` : '미정';
+  }
+  function showFormErr(msg) {
+    $('formErr').textContent = msg;
+    $('formErr').hidden = !msg;
+  }
+
+  function openEditor(no = null) {
+    const idea = no != null ? ideas.find((i) => i.no === no) : null;
+    editingNo = idea ? idea.no : null;
+    $('editForm').reset();
+    $('eTitle').textContent = idea ? `${idea.no}. ${idea.title} 수정` : '아이디어 추가';
+    F('icon').value = idea?.icon || '';
+    F('title').value = idea?.title || '';
+    F('category').value = idea ? catOf(idea) : (state.cat !== 'all' ? state.cat : 'mine');
+    F('status').value = idea ? statusOf(idea) : 'candidate';
+    F('summary').value = idea?.summary || '';
+    F('next').value = idea?.next || '';
+    F('note').value = idea?.note || '';
+    F('image').value = idea?.image || '';
+    F('draft').checked = Boolean(idea?.draft);
+    for (const [key] of CRITERIA) setRate(key, idea ? score(idea, key) : 0);
+    showFormErr('');
+    $('saveHint').textContent = mode === 'github' ? 'GitHub의 ideas.json에 바로 저장됩니다.' : '이 브라우저에만 저장됩니다.';
+    $('editor').showModal();
+    F('title').focus();
+  }
+
+  async function onSave(e) {
+    e.preventDefault();
+    const title = F('title').value.trim();
+    if (!title) { showFormErr('이름을 입력해 주세요.'); F('title').focus(); return; }
+
+    const prev = editingNo != null ? ideas.find((i) => i.no === editingNo) : null;
+    const scores = {};
+    for (const [key] of CRITERIA) scores[key] = Number($('rates').querySelector(`[data-key="${key}"]`).dataset.value || 0);
+    const idea = clean({
+      no: prev ? prev.no : nextNo(),
+      title,
+      icon: F('icon').value.trim(),
+      image: F('image').value.trim(),
+      category: F('category').value,
+      status: F('status').value,
+      draft: F('draft').checked,
+      summary: F('summary').value.trim(),
+      scores,
+      next: F('next').value.trim(),
+      note: F('note').value.trim(),
+      source: prev?.source || '',
+      updated: today(),
+    });
+
+    const btn = $('saveBtn');
+    btn.disabled = true;
+    btn.textContent = '저장 중…';
+    showFormErr('');
+    try {
+      if (mode === 'github') {
+        await saveToGitHub((data) => {
+          // 새 항목은 최신본 기준으로 번호를 다시 매겨 다른 기기에서 추가한 번호와 겹치지 않게 한다.
+          if (!prev) idea.no = Math.max(nextNo(data.ideas), nextNo());
+          upsert(data.ideas, idea);
+        }, `${prev ? '아이디어 수정' : '아이디어 추가'}: ${title}`);
+        if (local[idea.no]) { delete local[idea.no]; persistLocal(); }
+        toast('GitHub에 저장했습니다. 공개 페이지에는 1~2분 뒤 반영됩니다.');
+      } else {
+        local[idea.no] = idea;
+        if (!persistLocal()) { delete local[idea.no]; throw new Error('이 브라우저는 저장소 사용이 막혀 있습니다.'); }
+        toast('이 브라우저에 저장했습니다.');
+      }
+      merge();
+      render();
+      $('editor').close();
+    } catch (err) {
+      showFormErr(`저장하지 못했습니다. ${err.status ? explain(err) : err.message}`);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '저장';
+    }
+  }
+
+  // ── 저장 설정 ───────────────────────────────────────────
+  function setMsg(text, isError = false) {
+    const m = $('setMsg');
+    m.textContent = text;
+    m.classList.toggle('error', isError);
+    m.hidden = !text;
+  }
+  async function connect() {
+    const t = $('tokenInput').value.trim();
+    if (!t) { setMsg('토큰을 입력해 주세요.', true); return; }
+    const btn = $('connectBtn');
+    btn.disabled = true;
+    setMsg('연결을 확인하는 중…');
+    try {
+      const fresh = await pullRemote(t);
+      token = t;
+      store.set(LS_TOKEN, t);
+      remote = fresh.data;
+      mode = 'github';
+      $('tokenInput').value = '';
+      merge();
+      render();
+      setMsg(`연결했습니다. ideas.json에서 ${fresh.data.ideas.length}개 항목을 읽었습니다.`);
+    } catch (err) {
+      setMsg(`연결하지 못했습니다. ${err.status ? explain(err) : err.message}`, true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+  async function disconnect() {
+    token = '';
+    store.remove(LS_TOKEN);
+    mode = 'local';
+    try { await loadPublic(); } catch (err) { console.error(err); }
+    merge();
+    render();
+    setMsg('연결을 해제하고 이 브라우저에서 토큰을 지웠습니다.');
+  }
+  async function uploadLocal() {
+    const items = Object.values(local);
+    if (!items.length || mode !== 'github') return;
+    const btn = $('uploadBtn');
+    btn.disabled = true;
+    setMsg('올리는 중…');
+    try {
+      await saveToGitHub((data) => { for (const i of items) upsert(data.ideas, clean({ ...i, no: Number(i.no) })); },
+        `이 기기 저장분 ${items.length}개 올리기`);
+      local = {};
+      persistLocal();
+      merge();
+      render();
+      setMsg(`${items.length}개 항목을 GitHub에 올렸습니다.`);
+    } catch (err) {
+      setMsg(`올리지 못했습니다. ${err.status ? explain(err) : err.message}`, true);
+      renderMode();
+    }
+  }
+  async function exportLocal() {
+    const items = Object.values(local);
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(items, null, 2));
+      setMsg(`${items.length}개 항목을 JSON으로 복사했습니다. 대화창에 붙여 넣으면 ideas.json에 옮길 수 있습니다.`);
+    } catch {
+      setMsg('클립보드에 복사하지 못했습니다. 브라우저 권한을 확인해 주세요.', true);
+    }
+  }
+
+  // ── 이벤트 연결과 시작 ──────────────────────────────────
+  function bind() {
+    $('q').addEventListener('input', (e) => { state.q = e.target.value.trim().toLowerCase(); render(); });
+    $('sort').addEventListener('change', (e) => { state.sort = e.target.value; render(); });
+    $('addBtn').addEventListener('click', () => openEditor());
+    $('setBtn').addEventListener('click', () => { setMsg(''); renderMode(); $('settings').showModal(); });
+    $('editForm').addEventListener('submit', onSave);
+    $('connectBtn').addEventListener('click', connect);
+    $('tokenInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') connect(); });
+    $('disconnectBtn').addEventListener('click', disconnect);
+    $('uploadBtn').addEventListener('click', uploadLocal);
+    $('exportBtn').addEventListener('click', exportLocal);
+    // [data-close] 버튼은 자기가 속한 대화상자를 닫는다.
+    document.addEventListener('click', (e) => {
+      const c = e.target.closest('[data-close]');
+      if (c) c.closest('dialog')?.close();
+    });
+    // 상세·설정은 바깥(배경)을 눌러도 닫는다. 입력 양식은 실수로 내용을 잃지 않게 닫지 않는다.
+    for (const id of ['detail', 'settings']) {
+      const d = $(id);
+      d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
+    }
+  }
+
+  async function init() {
+    buildForm();
+    bind();
+    try {
+      if (token) {
+        try {
+          remote = (await pullRemote()).data;
+          mode = 'github';
+        } catch (err) {
+          mode = 'local';
+          toast(`GitHub 연결에 실패해 공개 파일로 표시합니다. ${err.status ? explain(err) : err.message}`, true);
+          await loadPublic();
+        }
+      } else {
+        await loadPublic();
+      }
+    } catch (err) {
+      console.error(err);
+      toast(`${err.message}. 로컬에서는 정적 서버로 열어 주세요.`, true);
+    }
+    merge();
+    render();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
