@@ -43,6 +43,7 @@
   --shadow-hover: 0 2px 4px rgba(40, 30, 10, .05), 0 10px 24px rgba(40, 30, 10, .08);
   --shadow-dialog: 0 24px 64px rgba(30, 20, 5, .22);
   --backdrop: rgba(28, 24, 18, .42);
+  --edge: #b4ad9f;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -71,6 +72,7 @@
     --shadow-hover: 0 0 0 1px var(--line);
     --shadow-dialog: 0 24px 64px rgba(0, 0, 0, .5);
     --backdrop: rgba(0, 0, 0, .6);
+    --edge: #5d646e;
   }
 }
 
@@ -317,6 +319,126 @@ dialog::backdrop { background: var(--backdrop); }
 .howto ol { display: grid; gap: 4px; margin: 8px 0; padding-left: 20px; }
 .howto a { color: var(--focus); }
 
+/* 보기 전환(카드 | 관계도) */
+.seg { display: inline-flex; padding: 3px; background: var(--chip); border-radius: 11px; }
+.seg-btn {
+  min-height: 30px; padding: 4px 13px; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--muted);
+  background: transparent; border: 0; border-radius: 8px; cursor: pointer;
+}
+.seg-btn[aria-pressed="true"] { color: var(--ink); background: var(--surface); box-shadow: 0 1px 2px rgba(40, 30, 10, .12); }
+.seg-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+/* 관계도 */
+.graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+.graph-card { position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+.graph-card svg {
+  display: block; width: 100%; height: clamp(460px, 68vh, 640px);
+  touch-action: pan-y; user-select: none; -webkit-user-select: none;
+}
+.g-top {
+  position: absolute; top: 10px; left: 14px; right: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  pointer-events: none;
+}
+.g-count { font-size: 12.5px; color: var(--muted); }
+.zoom { display: inline-flex; gap: 4px; pointer-events: auto; }
+.zbtn {
+  min-width: 32px; height: 30px; padding: 0 9px; font: inherit; font-size: 13px; color: var(--ink-2); cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+}
+.zbtn:hover { border-color: var(--muted); }
+.zbtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.g-msg {
+  position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px;
+  font-size: 14px; color: var(--muted); text-align: center; pointer-events: none;
+}
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 0 14px 12px; font-size: 11.5px; color: var(--muted); }
+.legend .sw { display: inline-block; width: 9px; height: 9px; margin-right: 4px; vertical-align: -1px; border-radius: 50%; background: var(--c); }
+.legend .ln { display: inline-block; width: 18px; height: 2px; margin-right: 5px; vertical-align: 3px; background: var(--edge); }
+.legend .ring { display: inline-block; width: 11px; height: 11px; margin-right: 4px; vertical-align: -2px; border: 1.5px dashed var(--muted); border-radius: 50%; }
+/* 관계도 안의 SVG 요소. 색은 요소마다 --c(분류 색)로 넘긴다. */
+.hull { fill: var(--c); fill-opacity: .06; stroke: var(--c); stroke-opacity: .25; stroke-dasharray: 4 4; pointer-events: none; }
+.hull-label {
+  fill: var(--c); font-size: 12px; font-weight: 700; text-anchor: middle; pointer-events: none;
+  stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; paint-order: stroke;
+}
+.edge { stroke: var(--edge); stroke-width: 1.2; stroke-opacity: .6; pointer-events: none; }
+.has-sel .edge { stroke-opacity: .22; }
+.has-sel .edge.hot { stroke: var(--c); stroke-width: 2.6; stroke-opacity: .9; }
+.node { cursor: pointer; outline: none; touch-action: none; transition: opacity .15s ease; }
+.node .dot { fill: color-mix(in srgb, var(--c) 15%, var(--surface)); stroke: var(--c); stroke-width: 1.5; }
+.node.draft .dot { stroke-dasharray: 3 2.5; }
+.node .halo { fill: none; stroke: var(--c); stroke-width: 2; stroke-opacity: 0; }
+.node:hover .dot { stroke-width: 2.4; }
+.node.sel .dot { fill: color-mix(in srgb, var(--c) 26%, var(--surface)); stroke-width: 2.4; }
+.node.sel .halo { stroke-opacity: .35; }
+.node:focus-visible .halo { stroke: var(--focus); stroke-opacity: 1; }
+.node.dim { opacity: .35; }
+.node .ico { text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.node .lbl {
+  font-size: 12.5px; font-weight: 500; text-anchor: middle; fill: var(--ink); pointer-events: none;
+  stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke;
+}
+.has-sel .node:not(.dim) .lbl { font-weight: 700; }
+.narrow .node .lbl, .narrow .hull-label { font-size: 10.5px; }
+
+/* 관계도 옆 패널 */
+.panel { display: flex; flex-direction: column; gap: 12px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+.p-head { display: flex; align-items: center; gap: 12px; }
+.p-art {
+  display: grid; place-items: center; flex: none; width: 54px; height: 54px; overflow: hidden; border-radius: 14px;
+  background: color-mix(in srgb, var(--c) 14%, var(--surface));
+}
+.p-art .emoji { font-size: 30px; }
+.p-art img { width: 100%; height: 100%; object-fit: cover; }
+.p-title { margin: 2px 0 0; font-size: 18px; line-height: 1.3; letter-spacing: -.01em; }
+.p-title .no { margin-right: 6px; font-size: 13px; color: var(--muted); }
+.p-sum { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.panel .meters { gap: 5px; margin: 0; padding: 10px 12px; background: var(--bg); border-radius: 10px; }
+.panel .meter { font-size: 11.5px; }
+.p-sub { margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.p-sub b { color: var(--ink); }
+.p-guide { display: grid; gap: 4px; margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
+.p-empty { margin: 0; font-size: 13px; color: var(--muted); }
+.panel .btns .btn { flex: 1 1 auto; }
+.conn-list { display: grid; gap: 6px; }
+.conn-row {
+  display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 10px; width: 100%; padding: 8px 10px;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+}
+.conn-row:hover { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
+.conn-row:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.conn-row .ic {
+  display: grid; place-items: center; width: 34px; height: 34px; overflow: hidden; font-size: 18px; border-radius: 10px;
+  background: color-mix(in srgb, var(--c) 14%, var(--surface));
+}
+.conn-row .ic img { width: 100%; height: 100%; object-fit: cover; }
+.conn-row .t { display: block; font-size: 13.5px; font-weight: 700; line-height: 1.3; }
+.conn-row .t small { margin-left: 5px; font-size: 11px; font-weight: 600; color: var(--c); }
+.conn-row .w { display: block; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+@media (max-width: 900px) {
+  .graph-layout { grid-template-columns: 1fr; }
+  .graph-card svg { height: 440px; }
+}
+
+/* 입력 양식: 연결 */
+.link-rows { display: grid; gap: 6px; }
+.link-rows:empty { display: none; }
+.link-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 34px; align-items: center; gap: 6px; }
+.link-row select, .link-row input {
+  width: 100%; padding: 7px 9px; font: inherit; font-size: 13.5px; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+}
+.link-row :is(select, input):focus { outline: 2px solid var(--focus); outline-offset: 0; border-color: transparent; }
+.link-in { margin: 0; font-size: 12px; color: var(--muted); }
+.btn.small { justify-self: start; min-height: 30px; padding: 4px 10px; font-size: 12.5px; }
+@media (max-width: 520px) {
+  .link-row { grid-template-columns: minmax(0, 1fr) 34px; }
+  .link-row select { grid-column: 1; grid-row: 1; }
+  .link-row input { grid-column: 1; grid-row: 2; }
+  .link-row .icon-btn { grid-column: 2; grid-row: 1; }
+}
+
 /* 알림 */
 .toast {
   position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 10;
@@ -359,6 +481,10 @@ dialog::backdrop { background: var(--backdrop); }
 
   <div class="toolbar">
     <div class="toprow">
+      <div class="seg" role="group" aria-label="보기 방식">
+        <button type="button" class="seg-btn" data-view="cards" aria-pressed="true">▦ 카드</button>
+        <button type="button" class="seg-btn" data-view="graph" aria-pressed="false">◎ 관계도</button>
+      </div>
       <input type="search" class="search" id="q" placeholder="이름·설명·메모 검색" aria-label="아이디어 검색">
       <button type="button" class="btn primary" id="addBtn">＋ 아이디어 추가</button>
       <button type="button" class="btn" id="setBtn" aria-haspopup="dialog"><span class="mode-dot" id="modeDot"></span><span id="modeText">저장: 이 기기</span></button>
@@ -366,7 +492,7 @@ dialog::backdrop { background: var(--backdrop); }
     <div class="chips" id="catChips" role="group" aria-label="분류로 거르기"></div>
     <div class="row2">
       <div class="chips" id="statusChips" role="group" aria-label="상태로 거르기"></div>
-      <label class="sort">정렬
+      <label class="sort" id="sortWrap">정렬
         <select id="sort">
           <option value="no">번호순</option>
           <option value="total">종합 순</option>
@@ -381,6 +507,24 @@ dialog::backdrop { background: var(--backdrop); }
 
   <p class="count" id="count" aria-live="polite"></p>
   <main class="grid" id="grid"><p class="empty">불러오는 중…</p></main>
+
+  <!-- 관계도: 그림은 스크립트가 d3로 그린다 -->
+  <section class="graph-layout" id="graphWrap" aria-label="아이디어 관계도" hidden>
+    <div class="graph-card">
+      <svg id="graphSvg" role="group" aria-label="아이디어 관계도. 점을 눌러 연결을 봅니다."></svg>
+      <div class="g-top">
+        <span class="g-count" id="gCount"></span>
+        <span class="zoom">
+          <button type="button" class="zbtn" id="zoomOut" aria-label="축소">−</button>
+          <button type="button" class="zbtn" id="zoomFit">맞춤</button>
+          <button type="button" class="zbtn" id="zoomIn" aria-label="확대">＋</button>
+        </span>
+      </div>
+      <p class="g-msg" id="graphMsg" hidden></p>
+      <div class="legend" id="legend"></div>
+    </div>
+    <aside class="panel" id="graphPanel" aria-live="polite"></aside>
+  </section>
 
   <footer class="foot">
     마지막 수정 <span id="updated">-</span> ·
@@ -414,6 +558,12 @@ dialog::backdrop { background: var(--backdrop); }
       <div class="field"><span>평가 <small>점을 눌러 1~5점</small></span><div class="rates" id="rates"></div></div>
       <label class="field"><span>다음 행동</span><input type="text" name="next" maxlength="120" autocomplete="off"></label>
       <label class="field"><span>고민 메모</span><textarea name="note" rows="5"></textarea></label>
+      <div class="field">
+        <span>연결된 아이디어<small>서로 받쳐 주는 아이디어와 그 이유</small></span>
+        <div class="link-rows" id="linkRows"></div>
+        <p class="link-in" id="linkIn" hidden></p>
+        <button type="button" class="btn small" id="addLink">＋ 연결 추가</button>
+      </div>
       <label class="field"><span>이미지 주소<small>선택 · 넣으면 아이콘 대신 표시</small></span><input type="url" name="image" placeholder="https://…" autocomplete="off"></label>
       <label class="check"><input type="checkbox" name="draft"> 초안 (아직 직접 검토하지 않음)</label>
       <p class="form-err" id="formErr" role="alert" hidden></p>
@@ -499,7 +649,7 @@ dialog::backdrop { background: var(--backdrop); }
   const CRITERIA = [...BURDEN, ...GAIN];
   const PICKS = ['💡', '📈', '🏠', '📦', '🛒', '🎓', '📘', '🎬', '📷', '🧰', '🚚', '🤖', '🧾', '🍱', '🌱', '🔧'];
   // ideas.json에 쓰는 필드 순서. 저장할 때 이 순서로 맞춰 diff가 깔끔하게 남도록 한다.
-  const FIELD_ORDER = ['no', 'title', 'icon', 'image', 'category', 'status', 'draft', 'summary', 'scores', 'next', 'note', 'source', 'updated'];
+  const FIELD_ORDER = ['no', 'title', 'icon', 'image', 'category', 'status', 'draft', 'summary', 'scores', 'next', 'note', 'links', 'source', 'updated'];
 
   // ── 저장소(localStorage) ────────────────────────────────
   // 사생활 보호 모드 등에서는 localStorage가 막힐 수 있어 항상 try로 감싼다.
@@ -516,7 +666,7 @@ dialog::backdrop { background: var(--backdrop); }
   };
 
   // ── 상태 ────────────────────────────────────────────────
-  const state = { cat: 'all', status: 'all', sort: 'no', q: '' };
+  const state = { cat: 'all', status: 'all', sort: 'no', q: '', view: 'cards' }; // view: 'cards' | 'graph'
   let remote = { updated: '', ideas: [] }; // ideas.json 내용
   let token = String(store.get(LS_TOKEN, '') || '');
   let local = store.get(LS_LOCAL, {});      // 이 기기에만 저장된 아이디어 { no: idea }
@@ -597,6 +747,7 @@ dialog::backdrop { background: var(--backdrop); }
       const v = idea[k];
       if (v === undefined) continue;
       if (['icon', 'image', 'source'].includes(k) && !v) continue;
+      if (k === 'links' && (!Array.isArray(v) || !v.length)) continue;
       out[k] = v;
     }
     return out;
@@ -759,12 +910,30 @@ dialog::backdrop { background: var(--backdrop); }
   function render() {
     renderChips();
     const shown = ideas.filter(matches).sort(SORTS[state.sort] || SORTS.no);
+    const isGraph = state.view === 'graph';
     $('count').textContent = `${ideas.length}개 중 ${shown.length}개 표시`;
     $('updated').textContent = remote.updated || '-';
-    $('grid').replaceChildren(...(shown.length
-      ? shown.map(tile)
-      : [el('p', { class: 'empty', text: state.q ? `‘${state.q}’에 맞는 아이디어가 없습니다.` : '이 조건에 맞는 아이디어가 아직 없습니다.' })]));
+    document.querySelectorAll('.seg-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
+    $('sortWrap').hidden = isGraph; // 관계도에서는 정렬이 의미가 없다
+    $('grid').hidden = isGraph;
+    $('graphWrap').hidden = !isGraph;
+    if (isGraph) {
+      renderGraph(shown);
+    } else {
+      $('grid').replaceChildren(...(shown.length
+        ? shown.map(tile)
+        : [el('p', { class: 'empty', text: state.q ? `‘${state.q}’에 맞는 아이디어가 없습니다.` : '이 조건에 맞는 아이디어가 아직 없습니다.' })]));
+    }
     renderMode();
+  }
+
+  // 보기 전환. 관계도는 주소 끝에 #graph를 붙여 그 상태로 공유·새로고침할 수 있게 한다.
+  function setView(view) {
+    state.view = view === 'graph' ? 'graph' : 'cards';
+    try {
+      history.replaceState(null, '', state.view === 'graph' ? '#graph' : location.pathname + location.search);
+    } catch { /* 주소를 못 바꿔도 화면 전환은 그대로 한다 */ }
+    render();
   }
 
   function renderMode() {
@@ -780,6 +949,368 @@ dialog::backdrop { background: var(--backdrop); }
     $('uploadBtn').disabled = !(mode === 'github' && n);
     $('exportBtn').disabled = !n;
     $('disconnectBtn').hidden = !token;
+  }
+
+  // ── 관계도 ──────────────────────────────────────────────
+  // d3는 관계도를 처음 열 때만 불러온다. 토큰을 다루는 페이지라 SRI 해시로 파일을 고정한다.
+  const D3 = {
+    src: 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js',
+    integrity: 'sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==',
+  };
+  // 분류별로 점이 모이는 자리(그림 폭·높이에 대한 비율). 내 아이디어는 가운데에 모은다.
+  const ANCHOR = { asset: [0.22, 0.3], content: [0.76, 0.3], unmanned: [0.24, 0.72], commerce: [0.74, 0.74], mine: [0.5, 0.52] };
+  const graph = {
+    loading: null, ready: false, token: 0, selected: null,
+    pos: new Map(), sizeKey: '', nodes: [], edges: [], near: new Set(), W: 0, H: 0, narrow: false,
+  };
+
+  function loadD3() {
+    if (window.d3) return Promise.resolve(window.d3);
+    if (!graph.loading) {
+      graph.loading = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = D3.src;
+        s.integrity = D3.integrity;
+        s.crossOrigin = 'anonymous';
+        s.referrerPolicy = 'no-referrer';
+        s.onload = () => (window.d3 ? resolve(window.d3) : reject(new Error('d3가 비어 있습니다')));
+        s.onerror = () => { graph.loading = null; s.remove(); reject(new Error('그래프 라이브러리(d3)를 불러오지 못했습니다')); };
+        document.head.append(s);
+      });
+    }
+    return graph.loading;
+  }
+
+  // 연결은 카드마다 links로 저장하고, 화면에서는 방향 없는 선 하나로 합친다(이유는 먼저 나온 쪽을 쓴다).
+  function edgesOf(list) {
+    const nos = new Set(list.map((i) => i.no));
+    const seen = new Map();
+    for (const i of list) {
+      for (const l of Array.isArray(i.links) ? i.links : []) {
+        const to = Number(l && l.no);
+        if (!nos.has(to) || to === i.no) continue;
+        const key = `${Math.min(i.no, to)}-${Math.max(i.no, to)}`;
+        if (!seen.has(key)) seen.set(key, { key, a: i.no, b: to, why: String((l && l.why) || '') });
+      }
+    }
+    return [...seen.values()];
+  }
+  function connectionsOf(no) {
+    return edgesOf(ideas)
+      .filter((e) => e.a === no || e.b === no)
+      .map((e) => ({ other: ideas.find((i) => i.no === (e.a === no ? e.b : e.a)), why: e.why }))
+      .filter((c) => c.other)
+      .sort((x, y) => x.other.no - y.other.no);
+  }
+  // 점 크기는 종합 점수로 정한다.
+  const radius = (idea, narrow) => {
+    const r = (narrow ? 11 : 17) + (total(idea) + 4) * (narrow ? 0.9 : 1.6);
+    return Math.max(narrow ? 10 : 14, Math.min(narrow ? 19 : 32, r));
+  };
+  // 좁은 화면에서는 선택한 점과 그 이웃만 이름을 보여 준다.
+  const showLabel = (n) => !graph.narrow || graph.near.has(n.no);
+  const labelSize = () => (graph.narrow ? 10.5 : 12.5);
+
+  function setupGraph(d3) {
+    const svg = d3.select('#graphSvg');
+    const vp = svg.append('g');
+    graph.layers = { hull: vp.append('g'), edge: vp.append('g'), node: vp.append('g'), label: vp.append('g') };
+    // 휠은 Ctrl을 누를 때만, 터치는 두 손가락일 때만 확대·이동한다. 평소 스크롤은 페이지가 받는다.
+    graph.zoom = d3.zoom().scaleExtent([0.5, 3])
+      .filter((e) => (e.type === 'wheel' ? e.ctrlKey : e.type.startsWith('touch') ? e.touches.length > 1 : !e.button))
+      .on('zoom', (e) => vp.attr('transform', e.transform));
+    svg.call(graph.zoom).on('dblclick.zoom', null).style('touch-action', 'pan-y');
+    svg.on('click', (e) => { if (e.target === svg.node()) selectNode(null); }); // 빈 곳을 누르면 선택 해제
+    graph.drag = d3.drag().clickDistance(4)
+      .on('start', function () { d3.select(this).raise(); })
+      .on('drag', (e, n) => {
+        n.x = e.x;
+        n.y = e.y;
+        graph.pos.set(n.no, { x: n.x, y: n.y });
+        positionGraph();
+      });
+    $('zoomIn').addEventListener('click', () => svg.transition().duration(200).call(graph.zoom.scaleBy, 1.3));
+    $('zoomOut').addEventListener('click', () => svg.transition().duration(200).call(graph.zoom.scaleBy, 1 / 1.3));
+    $('zoomFit').addEventListener('click', () => svg.transition().duration(250).call(graph.zoom.transform, d3.zoomIdentity));
+    $('graphSvg').addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && graph.selected != null) { e.stopPropagation(); selectNode(null); }
+    });
+    graph.svg = svg;
+    graph.ready = true;
+  }
+
+  function layoutNodes(d3, shown, edges) {
+    const { W, H, narrow } = graph;
+    const nodes = shown.map((idea) => {
+      const cat = catOf(idea);
+      const p = graph.pos.get(idea.no);
+      const [ax, ay] = ANCHOR[cat] || ANCHOR.mine;
+      const jitter = ((idea.no * 37) % 41) - 20; // 첫 자리를 번호로 정해 열 때마다 같은 모양이 나오게 한다
+      return { idea, no: idea.no, cat, r: radius(idea, narrow), x: p ? p.x : ax * W + jitter, y: p ? p.y : ay * H - jitter, fixed: Boolean(p) };
+    });
+    if (!nodes.some((n) => !n.fixed)) return nodes;
+
+    // 이미 자리 잡은 점은 고정하고 새 점만 움직여, 아이디어를 더해도 그림 전체가 흔들리지 않게 한다.
+    const byNo = new Map(nodes.map((n) => [n.no, n]));
+    nodes.forEach((n) => { if (n.fixed) { n.fx = n.x; n.fy = n.y; } });
+    const FS = labelSize();
+    const at = (n, k) => (ANCHOR[n.cat] || ANCHOR.mine)[k];
+    const padX = narrow ? 18 : 40;
+    const keepInside = (n) => {
+      n.x = Math.max(n.r + padX, Math.min(W - n.r - padX, n.x));
+      n.y = Math.max(n.r + (narrow ? 50 : 70), Math.min(H - n.r - (narrow ? 26 : 34), n.y));
+    };
+    const sim = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(edges.map((e) => ({ source: byNo.get(e.a), target: byNo.get(e.b) }))).distance(narrow ? 48 : 82).strength(0.45))
+      .force('charge', d3.forceManyBody().strength(narrow ? -110 : -260))
+      .force('x', d3.forceX((n) => at(n, 0) * W).strength(0.15))
+      .force('y', d3.forceY((n) => at(n, 1) * H).strength(0.17))
+      // 이름표끼리 겹치지 않도록 충돌 반경을 이름 길이에 맞춰 넓힌다.
+      .force('collide', d3.forceCollide((n) => (narrow ? n.r + 10 : Math.max(n.r + 18, n.idea.title.length * FS * 0.5))).iterations(2))
+      .stop();
+    // 매 단계마다 그림 안으로 되돌려야 가장자리에 몰린 점끼리도 충돌 계산으로 서로 벌어진다.
+    for (let i = 0; i < 400; i++) {
+      sim.tick();
+      nodes.forEach(keepInside);
+    }
+    nodes.forEach((n) => {
+      n.fx = null;
+      n.fy = null;
+      graph.pos.set(n.no, { x: n.x, y: n.y });
+    });
+    return nodes;
+  }
+
+  function paintGraph() {
+    const d3 = window.d3;
+    const { nodes, edges, layers: L } = graph;
+    const sel = graph.selected;
+    graph.near = new Set(sel != null ? [sel] : []);
+    edges.forEach((e) => {
+      if (e.a === sel) graph.near.add(e.b);
+      if (e.b === sel) graph.near.add(e.a);
+    });
+    const selNode = nodes.find((n) => n.no === sel);
+    graph.svg.classed('has-sel', Boolean(selNode)).classed('narrow', graph.narrow);
+
+    L.edge.selectAll('line').data(edges, (e) => e.key).join('line')
+      .attr('class', (e) => (e.a === sel || e.b === sel ? 'edge hot' : 'edge'))
+      .attr('style', selNode ? `--c: var(--c-${selNode.cat})` : null);
+
+    L.node.selectAll('g.node').data(nodes, (n) => n.no).join((enter) => {
+      const g = enter.append('g').attr('class', 'node').attr('tabindex', 0).attr('role', 'button');
+      g.append('circle').attr('class', 'halo');
+      g.append('circle').attr('class', 'dot');
+      g.append('text').attr('class', 'ico emoji');
+      g.append('text').attr('class', 'lbl');
+      g.on('click', (e, n) => { e.stopPropagation(); selectNode(n.no); })
+        .on('keydown', (e, n) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectNode(n.no); }
+        })
+        .call(graph.drag);
+      return g;
+    })
+      .attr('class', (n) => ['node', n.no === sel && 'sel', selNode && !graph.near.has(n.no) && 'dim', n.idea.draft && 'draft'].filter(Boolean).join(' '))
+      .attr('style', (n) => `--c: var(--c-${n.cat})`)
+      .attr('aria-label', (n) => `${n.no}. ${n.idea.title || '(이름 없음)'}, ${labelOf(CATEGORIES, n.cat)}`)
+      .attr('aria-pressed', (n) => String(n.no === sel))
+      .each(function (n) {
+        const g = d3.select(this);
+        g.select('.halo').attr('r', n.r + 7);
+        g.select('.dot').attr('r', n.r);
+        g.select('.ico').attr('font-size', n.r * 0.95).text(n.idea.icon || String(n.idea.title || '?').slice(0, 1));
+        g.select('.lbl').attr('y', n.r + (graph.narrow ? 12 : 15)).text(showLabel(n) ? n.idea.title : '');
+      });
+    positionGraph();
+  }
+
+  // 점 자리만 다시 맞춘다(끌기 중에도 부른다).
+  function positionGraph() {
+    const byNo = new Map(graph.nodes.map((n) => [n.no, n]));
+    const L = graph.layers;
+    L.node.selectAll('g.node').attr('transform', (n) => `translate(${n.x},${n.y})`);
+    L.edge.selectAll('line')
+      .attr('x1', (e) => byNo.get(e.a).x).attr('y1', (e) => byNo.get(e.a).y)
+      .attr('x2', (e) => byNo.get(e.b).x).attr('y2', (e) => byNo.get(e.b).y);
+    drawHulls(window.d3);
+  }
+
+  // 분류별 묶음 배경과 이름. 이름은 묶음 둘레의 후보 자리 중 점·이름표와 가장 덜 겹치는 곳(같으면 위쪽)에 둔다.
+  function drawHulls(d3) {
+    const { nodes, W, H, narrow } = graph;
+    const FS = labelSize();
+    const lfs = narrow ? 10.5 : 12;
+    const obstacles = [];
+    nodes.forEach((n) => {
+      obstacles.push({ x0: n.x - n.r, x1: n.x + n.r, y0: n.y - n.r, y1: n.y + n.r });
+      if (showLabel(n)) {
+        const w = n.idea.title.length * FS * 0.92;
+        const ly = n.y + n.r + (narrow ? 12 : 15);
+        obstacles.push({ x0: n.x - w / 2, x1: n.x + w / 2, y0: ly - FS, y1: ly + 3 });
+      }
+    });
+    const area = (a, b) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)) * Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
+    const placed = [];
+    const hulls = [];
+    for (const c of CATEGORIES) {
+      if (c.id === 'all') continue;
+      const pts = [];
+      nodes.filter((n) => n.cat === c.id).forEach((n) => {
+        const pad = n.r + (narrow ? 12 : 24);
+        for (let k = 0; k < 12; k++) pts.push([n.x + pad * Math.cos((k / 6) * Math.PI), n.y + pad * Math.sin((k / 6) * Math.PI)]);
+      });
+      if (pts.length < 3) continue;
+      const hull = d3.polygonHull(pts);
+      const w = c.label.length * lfs + 8;
+      const cx = d3.mean(hull, (p) => p[0]);
+      const cy = d3.mean(hull, (p) => p[1]);
+      let best = null;
+      for (const [px, py] of hull) {
+        const len = Math.hypot(px - cx, py - cy) || 1;
+        const x = px + ((px - cx) / len) * 6;
+        const y = py + ((py - cy) / len) * 6 + lfs / 3;
+        const box = { x0: x - w / 2, x1: x + w / 2, y0: y - lfs, y1: y + 3 };
+        if (box.x0 < 6 || box.x1 > W - 6 || box.y0 < 44 || box.y1 > H - 6) continue;
+        const cost = obstacles.reduce((s, b) => s + area(box, b), 0) + placed.reduce((s, b) => s + area(box, b) * 4, 0) + y * 0.05;
+        if (!best || cost < best.cost) best = { x, y, cost, box };
+      }
+      if (best) placed.push(best.box);
+      hulls.push({ cat: c.id, label: c.label, hull, spot: best });
+    }
+    const line = d3.line().curve(d3.curveCatmullRomClosed.alpha(0.6));
+    graph.layers.hull.selectAll('path').data(hulls, (h) => h.cat).join('path')
+      .attr('class', 'hull').attr('style', (h) => `--c: var(--c-${h.cat})`).attr('d', (h) => line(h.hull));
+    graph.layers.label.selectAll('text').data(hulls.filter((h) => h.spot), (h) => h.cat).join('text')
+      .attr('class', 'hull-label').attr('style', (h) => `--c: var(--c-${h.cat})`)
+      .attr('x', (h) => h.spot.x).attr('y', (h) => h.spot.y).text((h) => h.label);
+  }
+
+  function selectNode(no) {
+    graph.selected = no;
+    paintGraph();
+    renderPanel();
+  }
+
+  async function renderGraph(shown) {
+    const token = ++graph.token;
+    const msg = $('graphMsg');
+    let d3;
+    try {
+      d3 = await loadD3();
+    } catch (err) {
+      msg.textContent = `${err.message}. 인터넷 연결을 확인한 뒤 새로고침해 주세요.`;
+      msg.hidden = false;
+      return;
+    }
+    if (token !== graph.token || state.view !== 'graph') return; // 그사이 다시 그리기를 요청했으면 이번 것은 버린다
+    if (!graph.ready) setupGraph(d3);
+    const { width: W, height: H } = $('graphSvg').getBoundingClientRect();
+    if (!W || !H) return;
+    const sizeKey = `${Math.round(W / 20)}x${Math.round(H / 20)}`;
+    if (sizeKey !== graph.sizeKey) {
+      // 그림 크기가 바뀌면 자리를 새로 잡고 확대도 처음으로 돌린다.
+      graph.sizeKey = sizeKey;
+      graph.pos.clear();
+      graph.svg.call(graph.zoom.transform, d3.zoomIdentity);
+    }
+    Object.assign(graph, { W, H, narrow: W < 600 });
+    const nos = new Set(shown.map((i) => i.no));
+    graph.edges = edgesOf(ideas).filter((e) => nos.has(e.a) && nos.has(e.b));
+    if (graph.selected != null && !nos.has(graph.selected)) graph.selected = null;
+    graph.nodes = layoutNodes(d3, shown, graph.edges);
+    msg.hidden = shown.length > 0;
+    msg.textContent = shown.length ? '' : (state.q ? `‘${state.q}’에 맞는 아이디어가 없습니다.` : '이 조건에 맞는 아이디어가 아직 없습니다.');
+    $('gCount').textContent = `아이디어 ${shown.length}개 · 연결 ${graph.edges.length}개`;
+    paintGraph();
+    renderPanel();
+    renderLegend(shown);
+  }
+
+  function renderLegend(shown) {
+    const cats = CATEGORIES.filter((c) => c.id !== 'all' && shown.some((i) => catOf(i) === c.id));
+    $('legend').replaceChildren(
+      ...cats.map((c) => el('span', { style: `--c: var(--c-${c.id})` }, [el('span', { class: 'sw' }), c.label])),
+      el('span', {}, [el('span', { class: 'ln' }), '서로 받쳐 주는 관계']),
+      el('span', { text: '점 크기 = 종합 점수' }),
+      el('span', {}, [el('span', { class: 'ring' }), '초안']),
+    );
+  }
+
+  // 연결된 아이디어 한 줄(패널·상세 창에서 같이 쓴다)
+  function connRow(idea, sub, onClick) {
+    const cat = catOf(idea);
+    const b = el('button', { type: 'button', class: 'conn-row', style: `--c: var(--c-${cat})` }, [
+      el('span', { class: 'ic' }, artContent(idea)),
+      el('span', {}, [
+        el('span', { class: 't' }, [`${idea.no}. ${idea.title || '(이름 없음)'}`, el('small', { text: labelOf(CATEGORIES, cat) })]),
+        sub ? el('span', { class: 'w', text: sub }) : null,
+      ]),
+    ]);
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function renderPanel() {
+    const p = $('graphPanel');
+    const idea = graph.selected != null ? ideas.find((i) => i.no === graph.selected) : null;
+    // 관계도에 보이는 아이디어면 그 점을 고르고, 필터로 숨겨진 아이디어면 상세 창을 연다.
+    const goTo = (other) => () => (graph.nodes.some((n) => n.no === other.no) ? selectNode(other.no) : openDetail(other.no));
+
+    if (!idea) {
+      const deg = new Map();
+      graph.edges.forEach((e) => {
+        deg.set(e.a, (deg.get(e.a) || 0) + 1);
+        deg.set(e.b, (deg.get(e.b) || 0) + 1);
+      });
+      const hubs = graph.nodes.filter((n) => deg.get(n.no)).sort((a, b) => deg.get(b.no) - deg.get(a.no) || a.no - b.no).slice(0, 3);
+      const lone = graph.nodes.filter((n) => !deg.get(n.no));
+      p.style.removeProperty('--c');
+      p.replaceChildren(
+        el('h2', { class: 'p-title', text: '관계도 보는 법' }),
+        el('ul', { class: 'p-guide' }, [
+          el('li', { text: '점 하나가 아이디어 하나입니다. 점이 클수록 종합 점수가 높습니다.' }),
+          el('li', { text: '선은 서로 받쳐 주는 관계입니다. 점을 누르면 연결과 그 이유가 나옵니다.' }),
+          el('li', { text: '점은 끌어서 옮길 수 있습니다. 확대는 Ctrl+휠이나 두 손가락으로 합니다.' }),
+        ]),
+        hubs.length ? el('h3', { class: 'p-sub', text: '연결이 많은 아이디어' }) : null,
+        hubs.length ? el('div', { class: 'conn-list' }, hubs.map((n) => connRow(n.idea, `연결 ${deg.get(n.no)}개`, goTo(n.idea)))) : null,
+        lone.length ? el('h3', { class: 'p-sub' }, ['연결 없는 아이디어 ', el('b', { text: String(lone.length) })]) : null,
+        lone.length ? el('div', { class: 'conn-list' }, lone.map((n) => connRow(n.idea, '아직 다른 아이디어와 이어지지 않음', goTo(n.idea)))) : null,
+      );
+      return;
+    }
+
+    const cat = catOf(idea);
+    const status = statusOf(idea);
+    const conns = connectionsOf(idea.no);
+    p.style.setProperty('--c', `var(--c-${cat})`);
+    p.replaceChildren(
+      el('div', { class: 'p-head' }, [
+        art(idea, 'p-art'),
+        el('div', {}, [
+          el('div', { class: 'meta' }, [
+            el('span', { class: 'cat', text: labelOf(CATEGORIES, cat) }),
+            el('span', { class: 'status', style: `--s: var(--s-${status})`, text: labelOf(STATUSES, status) }),
+            idea.draft ? el('span', { class: 'draft', text: '초안' }) : null,
+          ]),
+          el('h2', { class: 'p-title' }, [el('span', { class: 'no', text: String(idea.no) }), idea.title || '(이름 없음)']),
+        ]),
+      ]),
+      idea.summary ? el('p', { class: 'p-sum', text: idea.summary }) : null,
+      el('div', { class: 'meters' }, [
+        meter('burden', '부담', sum(idea, BURDEN) / BURDEN.length),
+        meter('gain', '기대', sum(idea, GAIN) / GAIN.length),
+      ]),
+      el('h3', { class: 'p-sub' }, ['연결된 아이디어 ', el('b', { text: String(conns.length) })]),
+      conns.length
+        ? el('div', { class: 'conn-list' }, conns.map((c) => connRow(c.other, c.why || '이유를 아직 적지 않음', goTo(c.other))))
+        : el('p', { class: 'p-empty', text: '아직 연결이 없습니다. 수정에서 연결을 추가해 보세요.' }),
+      el('div', { class: 'btns' }, [
+        button('btn primary', '상세 보기', () => openDetail(idea.no)),
+        button('btn', '수정', () => openEditor(idea.no)),
+        button('btn', '선택 해제', () => selectNode(null)),
+      ]),
+    );
   }
 
   // ── 상세 보기 ───────────────────────────────────────────
@@ -835,11 +1366,20 @@ dialog::backdrop { background: var(--backdrop); }
           el('h3', { text: '고민 메모' }),
           idea.note ? el('p', { text: idea.note }) : el('p', { class: 'placeholder', text: '아직 메모가 없습니다. 수정을 눌러 적어 보세요.' }),
         ]),
+        (() => {
+          const conns = connectionsOf(idea.no);
+          return el('section', { class: 'd-note' }, [
+            el('h3', { text: `연결된 아이디어 ${conns.length}` }),
+            conns.length
+              ? el('div', { class: 'conn-list' }, conns.map((c) => connRow(c.other, c.why || '이유를 아직 적지 않음', () => openDetail(c.other.no))))
+              : el('p', { class: 'placeholder', text: '아직 연결이 없습니다.' }),
+          ]);
+        })(),
         el('p', { class: 'd-info', text: [idea.source && `출처 ${idea.source}`, idea.updated && `수정 ${idea.updated}`].filter(Boolean).join(' · ') }),
       ]),
       el('div', { class: 'dlg-foot' }, actions),
     );
-    $('detail').showModal();
+    if (!$('detail').open) $('detail').showModal(); // 상세 창 안에서 다른 아이디어로 넘어갈 때는 이미 열려 있다
     inner.querySelector('.dlg-body').scrollTop = 0;
   }
 
@@ -891,6 +1431,34 @@ dialog::backdrop { background: var(--backdrop); }
     g.querySelectorAll('input').forEach((inp) => { inp.checked = Number(inp.value) === v; });
     g.querySelector('.rate-val').textContent = v ? `${v}점` : '미정';
   }
+  // 연결 한 줄: [연결할 아이디어] [이유] [×]
+  function linkRow(selfNo, link = {}) {
+    const pick = el('select', { 'aria-label': '연결할 아이디어' }, [
+      el('option', { value: '', text: '아이디어 선택' }),
+      ...ideas.filter((i) => i.no !== selfNo).sort(SORTS.no).map((i) => el('option', { value: String(i.no), text: `${i.no}. ${i.title}` })),
+    ]);
+    pick.value = link.no != null ? String(link.no) : '';
+    const why = el('input', { type: 'text', maxlength: '80', placeholder: '어떻게 서로 받쳐 주는지', 'aria-label': '연결 이유', autocomplete: 'off' });
+    why.value = link.why || '';
+    const row = el('div', { class: 'link-row' }, [pick, why]);
+    row.append(button('icon-btn', '×', () => row.remove()));
+    row.lastChild.setAttribute('aria-label', '이 연결 빼기');
+    return row;
+  }
+  // 양식의 연결 줄을 읽는다. 고르지 않은 줄, 자기 자신, 같은 아이디어 중복은 뺀다.
+  function readLinks(selfNo) {
+    const out = [];
+    const seen = new Set();
+    for (const row of $('linkRows').querySelectorAll('.link-row')) {
+      const to = Number(row.querySelector('select').value);
+      if (!to || to === selfNo || seen.has(to)) continue;
+      seen.add(to);
+      const why = row.querySelector('input').value.trim();
+      out.push(why ? { no: to, why } : { no: to });
+    }
+    return out;
+  }
+
   function showFormErr(msg) {
     $('formErr').textContent = msg;
     $('formErr').hidden = !msg;
@@ -911,6 +1479,13 @@ dialog::backdrop { background: var(--backdrop); }
     F('image').value = idea?.image || '';
     F('draft').checked = Boolean(idea?.draft);
     for (const [key] of CRITERIA) setRate(key, idea ? score(idea, key) : 0);
+    // 연결: 이 카드에 저장된 연결은 고칠 수 있고, 다른 카드에서 이어 둔 연결은 안내만 한다.
+    $('linkRows').replaceChildren(...(Array.isArray(idea?.links) ? idea.links : []).map((l) => linkRow(editingNo, l)));
+    const incoming = idea ? ideas.filter((o) => o.no !== idea.no && (o.links || []).some((l) => Number(l.no) === idea.no)) : [];
+    $('linkIn').textContent = incoming.length
+      ? `다른 카드에서 이어 둔 연결: ${incoming.map((o) => o.title).join(', ')}. 이 연결은 그 카드에서 고칩니다.`
+      : '';
+    $('linkIn').hidden = !incoming.length;
     showFormErr('');
     $('saveHint').textContent = mode === 'github' ? 'GitHub의 ideas.json에 바로 저장됩니다.' : '이 브라우저에만 저장됩니다.';
     $('editor').showModal();
@@ -937,6 +1512,7 @@ dialog::backdrop { background: var(--backdrop); }
       scores,
       next: F('next').value.trim(),
       note: F('note').value.trim(),
+      links: readLinks(prev ? prev.no : null),
       source: prev?.source || '',
       updated: today(),
     });
@@ -1042,6 +1618,19 @@ dialog::backdrop { background: var(--backdrop); }
     $('q').addEventListener('input', (e) => { state.q = e.target.value.trim().toLowerCase(); render(); });
     $('sort').addEventListener('change', (e) => { state.sort = e.target.value; render(); });
     $('addBtn').addEventListener('click', () => openEditor());
+    $('addLink').addEventListener('click', () => {
+      const row = linkRow(editingNo);
+      $('linkRows').append(row);
+      row.querySelector('select').focus();
+    });
+    document.querySelectorAll('.seg-btn').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+    window.addEventListener('hashchange', () => setView(location.hash === '#graph' ? 'graph' : 'cards'));
+    // 창 크기가 바뀌면 관계도를 새 크기에 맞춰 다시 그린다(연속 이벤트는 묶어서 한 번만).
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { if (state.view === 'graph') render(); }, 200);
+    });
     $('setBtn').addEventListener('click', () => { setMsg(''); renderMode(); $('settings').showModal(); });
     $('editForm').addEventListener('submit', onSave);
     $('connectBtn').addEventListener('click', connect);
@@ -1064,6 +1653,7 @@ dialog::backdrop { background: var(--backdrop); }
   async function init() {
     buildForm();
     bind();
+    if (location.hash === '#graph') state.view = 'graph';
     try {
       if (token) {
         try {
