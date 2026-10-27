@@ -119,9 +119,15 @@ h1 { margin: 0; font-size: clamp(28px, 5vw, 38px); line-height: 1.2; letter-spac
 .lead { margin: 8px 0 0; max-width: 44em; color: var(--ink-2); font-size: 15.5px; }
 
 /* 목표 상자 */
-.goal { display: grid; gap: 12px; margin: 22px 0 0; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
-.g-head { display: flex; align-items: center; gap: 10px; }
-.g-head h2 { margin: 0; font-size: 15px; }
+.goal { margin: 22px 0 0; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.goal > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 12px 16px; cursor: pointer; list-style: none; }
+.goal > summary::-webkit-details-marker { display: none; }
+.goal > summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
+.goal[open] > summary::before { transform: rotate(90deg); }
+.g-title { font-size: 15px; font-weight: 700; }
+.g-tag { padding: 1px 9px; font-size: 12px; font-weight: 700; color: var(--muted); border: 1px dashed var(--muted); border-radius: 999px; }
+.g-line { font-size: 12.5px; color: var(--muted); }
+.g-body { display: grid; gap: 12px; padding: 0 18px 16px; }
 .g-dday { padding: 1px 10px; font-size: 12.5px; font-weight: 800; color: var(--on-new); background: var(--new); border-radius: 999px; }
 .g-stats { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 .g-stat { display: grid; align-content: start; gap: 1px; padding: 9px 12px; background: var(--bg); border-radius: 10px; }
@@ -518,7 +524,7 @@ dialog::backdrop { background: var(--backdrop); }
   </header>
 
   <!-- 목표 상자: ideas.json의 goal을 스크립트가 채운다 -->
-  <section class="goal" id="goalBox" aria-label="목표와 결정일" hidden></section>
+  <details class="goal" id="goalBox" hidden></details>
 
   <details class="guide">
     <summary>평가 기준 <small>부담 4가지 · 기대 3가지</small></summary>
@@ -989,13 +995,16 @@ dialog::backdrop { background: var(--backdrop); }
     return t;
   }
 
-  // 목표 상자: ideas.json의 goal을 보여 준다. 결정일까지 남은 날(D-n)을 함께 표시한다.
+  // 목표 상자: ideas.json의 goal을 접을 수 있는 상자로 보여 준다(기본은 접힘).
+  // example이 true면 '예시'로 표시하고 남은 날(D-n)은 세지 않는다.
   function renderGoal() {
     const g = remote.goal;
     const box = $('goalBox');
     if (!g || typeof g !== 'object') { box.hidden = true; return; }
+    const isExample = g.example === true;
     const left = -daysSince(g.decisionDate);
-    const dday = !Number.isFinite(left) ? '' : left > 0 ? `D-${left}` : left === 0 ? 'D-day' : `결정일 ${-left}일 지남`;
+    const dday = isExample || !Number.isFinite(left) ? '' : left > 0 ? `D-${left}` : left === 0 ? 'D-day' : `결정일 ${-left}일 지남`;
+    const line = [g.period, g.monthly, g.budget && `예산 ${g.budget}`, g.hours].filter(Boolean).join(' · ');
     const stat = (label, value, extra) => el('div', { class: 'g-stat' }, [
       el('span', { class: 'g-k', text: label }), el('b', { text: value || '-' }), extra ? el('small', { text: extra }) : null,
     ]);
@@ -1009,28 +1018,34 @@ dialog::backdrop { background: var(--backdrop); }
       return b;
     };
     box.replaceChildren(
-      el('div', { class: 'g-head' }, [el('h2', { text: '목표' }), dday ? el('span', { class: 'g-dday', text: dday }) : null]),
-      el('div', { class: 'g-stats' }, [
-        stat('기간', g.period),
-        stat('수입 목표', g.monthly),
-        stat('시험 예산', g.budget),
-        stat('투입 시간', g.hours, g.hoursNote),
-        stat('결정일', g.decisionDate, dday),
+      el('summary', {}, [
+        el('span', { class: 'g-title', text: '목표' }),
+        isExample ? el('span', { class: 'g-tag', text: '예시' }) : dday ? el('span', { class: 'g-dday', text: dday }) : null,
+        line ? el('span', { class: 'g-line', text: line }) : null,
       ]),
-      el('div', { class: 'g-phases' }, [
-        g.phase1 ? el('p', {}, [el('b', { text: '1단계' }), g.phase1]) : null,
-        g.phase2 ? el('p', {}, [el('b', { text: '2단계' }), g.phase2]) : null,
+      el('div', { class: 'g-body' }, [
+        el('div', { class: 'g-stats' }, [
+          stat('기간', g.period),
+          stat('수입 목표', g.monthly),
+          stat('시험 예산', g.budget),
+          stat('투입 시간', g.hours, g.hoursNote),
+          stat('결정일', g.decisionDate, isExample ? '예시' : dday),
+        ]),
+        el('div', { class: 'g-phases' }, [
+          g.phase1 ? el('p', {}, [el('b', { text: '1단계' }), g.phase1]) : null,
+          g.phase2 ? el('p', {}, [el('b', { text: '2단계' }), g.phase2]) : null,
+        ]),
+        Array.isArray(g.tracks) && g.tracks.length
+          ? el('div', { class: 'g-tracks' }, g.tracks.map((t) => el('div', { class: 'g-track' }, [
+            el('div', { class: 'g-track-head' }, [el('b', { text: t.name || '' }), t.budget ? el('span', { class: 'g-budget', text: `예산 ${t.budget}` }) : null]),
+            t.goal ? el('p', { text: t.goal }) : null,
+            el('div', { class: 'g-cards' }, (t.cards || []).map(cardChip)),
+          ])))
+          : null,
+        Array.isArray(g.rules) && g.rules.length
+          ? el('details', { class: 'g-rules' }, [el('summary', { text: '결정 규칙' }), el('ul', {}, g.rules.map((r) => el('li', { text: r })))])
+          : null,
       ]),
-      Array.isArray(g.tracks) && g.tracks.length
-        ? el('div', { class: 'g-tracks' }, g.tracks.map((t) => el('div', { class: 'g-track' }, [
-          el('div', { class: 'g-track-head' }, [el('b', { text: t.name || '' }), t.budget ? el('span', { class: 'g-budget', text: `예산 ${t.budget}` }) : null]),
-          t.goal ? el('p', { text: t.goal }) : null,
-          el('div', { class: 'g-cards' }, (t.cards || []).map(cardChip)),
-        ])))
-        : null,
-      Array.isArray(g.rules) && g.rules.length
-        ? el('details', { class: 'g-rules' }, [el('summary', { text: '결정 규칙' }), el('ul', {}, g.rules.map((r) => el('li', { text: r })))])
-        : null,
     );
     box.hidden = false;
   }
