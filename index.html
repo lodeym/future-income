@@ -43,6 +43,7 @@
   --c-unmanned: #7a5aa6;
   --c-commerce: #a26d14;
   --c-content: #23806e;
+  --c-service: #5f7a1a;
   --c-mine: #c0435a;
   --s-candidate: #858a92;
   --s-reviewing: #3866a8;
@@ -53,6 +54,8 @@
   --shadow-dialog: 0 24px 64px rgba(30, 20, 5, .22);
   --backdrop: rgba(28, 24, 18, .42);
   --edge: #b4ad9f;
+  --new: #e0393e;      /* NEW 표시 */
+  --on-new: #ffffff;
   color-scheme: light;
 }
 /* 어두운 테마: 시스템 설정을 따르지 않고 버튼으로 고를 때만 쓴다. 폰에서 너무 어둡지 않게 한 단계 밝게 잡았다. */
@@ -73,6 +76,7 @@
   --c-unmanned: #c0a9ea;
   --c-commerce: #e3b25e;
   --c-content: #6fcfba;
+  --c-service: #b3d174;
   --c-mine: #f191a4;
   --s-candidate: #aab0b8;
   --s-reviewing: #8fb3ea;
@@ -83,6 +87,8 @@
   --shadow-dialog: 0 24px 64px rgba(0, 0, 0, .45);
   --backdrop: rgba(0, 0, 0, .5);
   --edge: #737b86;
+  --new: #ff6b6e;
+  --on-new: #1d2126;
   color-scheme: dark;
 }
 
@@ -111,6 +117,33 @@ body:has(dialog[open]) { overflow: hidden; }
 .kicker { margin: 0 0 6px; font-size: 12px; letter-spacing: .14em; color: var(--muted); font-weight: 600; }
 h1 { margin: 0; font-size: clamp(28px, 5vw, 38px); line-height: 1.2; letter-spacing: -.02em; }
 .lead { margin: 8px 0 0; max-width: 44em; color: var(--ink-2); font-size: 15.5px; }
+
+/* 목표 상자 */
+.goal { display: grid; gap: 12px; margin: 22px 0 0; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.g-head { display: flex; align-items: center; gap: 10px; }
+.g-head h2 { margin: 0; font-size: 15px; }
+.g-dday { padding: 1px 10px; font-size: 12.5px; font-weight: 800; color: var(--on-new); background: var(--new); border-radius: 999px; }
+.g-stats { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.g-stat { display: grid; align-content: start; gap: 1px; padding: 9px 12px; background: var(--bg); border-radius: 10px; }
+.g-k { font-size: 11.5px; color: var(--muted); }
+.g-stat b { font-size: 15px; line-height: 1.35; }
+.g-stat small { font-size: 11.5px; color: var(--muted); }
+.g-phases { display: grid; gap: 4px; }
+.g-phases p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.g-phases b { margin-right: 6px; color: var(--ink); }
+.g-tracks { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.g-track { display: grid; align-content: start; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; }
+.g-track-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.g-budget { font-size: 12px; color: var(--muted); }
+.g-track p { margin: 0; font-size: 13px; color: var(--ink-2); }
+.g-cards { display: flex; flex-wrap: wrap; gap: 6px; }
+.g-card {
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; font: inherit; font-size: 12.5px; color: var(--ink); cursor: pointer;
+  background: color-mix(in srgb, var(--c) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--c) 40%, var(--line)); border-radius: 999px;
+}
+.g-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.g-rules summary { font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.g-rules ul { display: grid; gap: 3px; margin: 6px 0 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
 
 /* 평가 기준 안내(접힘) */
 .guide { margin: 20px 0 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
@@ -192,12 +225,13 @@ h1 { margin: 0; font-size: clamp(28px, 5vw, 38px); line-height: 1.2; letter-spac
 }
 .tile-art .emoji { font-size: clamp(34px, 4vw, 44px); }
 .tile-art img { width: 100%; height: 100%; object-fit: cover; }
+.flags { position: absolute; top: 7px; left: 7px; display: flex; gap: 4px; } /* 왼쪽 위: [NEW][초안] */
 .flag {
-  position: absolute; top: 7px; padding: 0 6px; font-size: 10.5px; line-height: 17px;
+  padding: 0 6px; font-size: 10.5px; line-height: 17px;
   color: var(--muted); background: var(--surface); border: 1px dashed var(--muted); border-radius: 999px;
 }
-.flag.draft { left: 7px; }
-.flag.local { right: 7px; color: var(--focus); border: 1px solid currentColor; }
+.flag.new { font-weight: 800; letter-spacing: .04em; color: var(--on-new); background: var(--new); border: 1px solid var(--new); }
+.flag.local { position: absolute; top: 7px; right: 7px; color: var(--focus); border: 1px solid currentColor; }
 .tile-body { display: flex; flex: 1; flex-direction: column; gap: 5px; padding: 9px 11px 11px; }
 .tile-title {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -261,6 +295,7 @@ dialog::backdrop { background: var(--backdrop); }
 .meta .cat { margin-right: 2px; font-weight: 700; color: var(--c); }
 .meta .status { padding: 0 8px; font-weight: 600; color: var(--s); border: 1px solid currentColor; border-radius: 999px; }
 .meta .draft { padding: 0 7px; color: var(--muted); border: 1px dashed var(--muted); border-radius: 999px; }
+.meta .new { padding: 0 7px; font-weight: 800; letter-spacing: .04em; color: var(--on-new); background: var(--new); border-radius: 999px; }
 .meta .local { padding: 0 7px; color: var(--focus); border: 1px solid currentColor; border-radius: 999px; }
 .d-summary { margin: 0; font-size: 15px; color: var(--ink-2); }
 .scores { display: grid; gap: 10px 22px; padding: 12px 14px; background: var(--bg); border-radius: 12px; }
@@ -389,6 +424,14 @@ dialog::backdrop { background: var(--backdrop); }
   stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke;
 }
 .has-sel .node:not(.dim) .lbl { font-weight: 700; }
+/* 관계도 점의 NEW 배지(N) */
+.nbadge { pointer-events: none; }
+.nbadge circle { fill: var(--new); stroke: var(--surface); stroke-width: 1.5; }
+.nbadge text { fill: var(--on-new); font-size: 9px; font-weight: 800; text-anchor: middle; dominant-baseline: central; }
+.legend .nb {
+  display: inline-grid; place-items: center; width: 13px; height: 13px; margin-right: 4px; vertical-align: -2px;
+  font-size: 8.5px; font-weight: 800; color: var(--on-new); background: var(--new); border-radius: 50%;
+}
 .narrow .node .lbl, .narrow .hull-label { font-size: 10.5px; }
 
 /* 관계도 옆 패널 */
@@ -474,8 +517,11 @@ dialog::backdrop { background: var(--backdrop); }
     <p class="lead">어떤 일로 먹고살 것인가. 떠오른 수익 아이디어를 카드로 모으고, 부담과 기대를 나눠 하나씩 따져 본다.</p>
   </header>
 
+  <!-- 목표 상자: ideas.json의 goal을 스크립트가 채운다 -->
+  <section class="goal" id="goalBox" aria-label="목표와 결정일" hidden></section>
+
   <details class="guide">
-    <summary>평가 기준 <small>부담 4가지 · 기대 2가지</small></summary>
+    <summary>평가 기준 <small>부담 4가지 · 기대 3가지</small></summary>
     <div class="guide-body">
       <div style="--k: var(--burden)">
         <h2>부담 <small>점이 적을수록 가볍다</small></h2>
@@ -491,9 +537,10 @@ dialog::backdrop { background: var(--backdrop); }
         <dl>
           <dt>역량 적합</dt><dd>지금 가진 경험·도구와 맞는 정도</dd>
           <dt>수익 규모</dt><dd>잘 됐을 때 기대할 수 있는 크기</dd>
+          <dt>지속성</dt><dd>한 번 만든 것이 계속 돈이 되는 정도(시간을 넣은 만큼만 나오면 낮다)</dd>
         </dl>
       </div>
-      <p class="note">1~26번은 카드뉴스 「한 번 만들어두면 계속 돈 들어오는 수익 구조 26가지」(경제정리노트) 목록을 바탕으로 쓴 일반론 초안이다. 직접 검토를 마치면 ‘초안’ 표시를 지운다. 타일 아래 막대는 부담·기대 점수의 평균이고, 종합 순 정렬은 기대 합계에서 부담 합계의 절반을 뺀 값으로 매긴다.</p>
+      <p class="note">1~26번은 카드뉴스 「한 번 만들어두면 계속 돈 들어오는 수익 구조 26가지」(경제정리노트), 27~31번은 유튜브 혼잡스 「모든 AI 부업 티어표」를 바탕으로 쓴 일반론 초안이다. 직접 검토를 마치면 ‘초안’ 표시를 지운다. ‘NEW’는 카드를 만든 날부터 7일 동안 붙는다. 타일 아래 막대는 부담·기대 점수의 평균이고, 종합 순 정렬은 기대 합계에서 부담 합계의 절반을 뺀 값으로 매긴다.</p>
     </div>
   </details>
 
@@ -654,6 +701,7 @@ dialog::backdrop { background: var(--backdrop); }
     { id: 'unmanned', label: '무인·임대' },
     { id: 'commerce', label: '커머스' },
     { id: 'content', label: '디지털 콘텐츠' },
+    { id: 'service', label: '대행·서비스' },
     { id: 'mine', label: '내 아이디어' },
   ];
   const STATUSES = [
@@ -665,11 +713,11 @@ dialog::backdrop { background: var(--backdrop); }
     { id: 'hold', label: '보류' },
   ];
   const BURDEN = [['capital', '초기 자본'], ['time', '투입 시간'], ['upkeep', '유지 노력'], ['risk', '리스크']];
-  const GAIN = [['fit', '역량 적합'], ['income', '수익 규모']];
+  const GAIN = [['fit', '역량 적합'], ['income', '수익 규모'], ['lasting', '지속성']];
   const CRITERIA = [...BURDEN, ...GAIN];
   const PICKS = ['💡', '📈', '🏠', '📦', '🛒', '🎓', '📘', '🎬', '📷', '🧰', '🚚', '🤖', '🧾', '🍱', '🌱', '🔧'];
   // ideas.json에 쓰는 필드 순서. 저장할 때 이 순서로 맞춰 diff가 깔끔하게 남도록 한다.
-  const FIELD_ORDER = ['no', 'title', 'icon', 'image', 'category', 'status', 'draft', 'summary', 'scores', 'next', 'note', 'links', 'source', 'updated'];
+  const FIELD_ORDER = ['no', 'title', 'icon', 'image', 'category', 'status', 'draft', 'summary', 'scores', 'next', 'note', 'links', 'source', 'created', 'updated'];
 
   // ── 저장소(localStorage) ────────────────────────────────
   // 사생활 보호 모드 등에서는 localStorage가 막힐 수 있어 항상 try로 감싼다.
@@ -718,6 +766,17 @@ dialog::backdrop { background: var(--backdrop); }
   }
 
   const today = () => new Date().toLocaleDateString('sv-SE'); // 로컬 시간대 기준 YYYY-MM-DD
+  // NEW 표시: 카드를 만든 날(created)부터 NEW_DAYS일 동안 붙는다. 만든 날이 없거나 형식이 틀리면 붙이지 않는다.
+  const NEW_DAYS = 7;
+  const daysSince = (ymd) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd || ''));
+    if (!m) return Infinity;
+    const now = new Date();
+    const start = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    const day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.round((day0 - start) / 86400000);
+  };
+  const isNew = (idea) => daysSince(idea.created) < NEW_DAYS;
   const score = (idea, key) => Math.max(0, Math.min(5, Math.round(Number(idea.scores && idea.scores[key]) || 0)));
   const sum = (idea, list) => list.reduce((acc, [key]) => acc + score(idea, key), 0);
   const total = (idea) => sum(idea, GAIN) - sum(idea, BURDEN) / 2;
@@ -766,7 +825,7 @@ dialog::backdrop { background: var(--backdrop); }
     for (const k of FIELD_ORDER) {
       const v = idea[k];
       if (v === undefined) continue;
-      if (['icon', 'image', 'source'].includes(k) && !v) continue;
+      if (['icon', 'image', 'source', 'created'].includes(k) && !v) continue;
       if (k === 'links' && (!Array.isArray(v) || !v.length)) continue;
       out[k] = v;
     }
@@ -904,11 +963,14 @@ dialog::backdrop { background: var(--backdrop); }
       style: `--c: var(--c-${cat}); --s: var(--s-${status})`,
       'aria-haspopup': 'dialog',
       'aria-label': [`${idea.no}. ${idea.title || '(이름 없음)'}`, labelOf(CATEGORIES, cat), labelOf(STATUSES, status),
-        idea.draft && '초안', idea._local && '이 기기에만 저장'].filter(Boolean).join(', '),
+        isNew(idea) && '새 카드', idea.draft && '초안', idea._local && '이 기기에만 저장'].filter(Boolean).join(', '),
     }, [
       el('span', { class: 'tile-art' }, [
         artContent(idea),
-        idea.draft ? el('span', { class: 'flag draft', text: '초안' }) : null,
+        el('span', { class: 'flags' }, [
+          isNew(idea) ? el('span', { class: 'flag new', text: 'NEW' }) : null,
+          idea.draft ? el('span', { class: 'flag draft', text: '초안' }) : null,
+        ]),
         idea._local ? el('span', { class: 'flag local', text: '이 기기' }) : null,
       ]),
       el('span', { class: 'tile-body' }, [
@@ -927,7 +989,54 @@ dialog::backdrop { background: var(--backdrop); }
     return t;
   }
 
+  // 목표 상자: ideas.json의 goal을 보여 준다. 결정일까지 남은 날(D-n)을 함께 표시한다.
+  function renderGoal() {
+    const g = remote.goal;
+    const box = $('goalBox');
+    if (!g || typeof g !== 'object') { box.hidden = true; return; }
+    const left = -daysSince(g.decisionDate);
+    const dday = !Number.isFinite(left) ? '' : left > 0 ? `D-${left}` : left === 0 ? 'D-day' : `결정일 ${-left}일 지남`;
+    const stat = (label, value, extra) => el('div', { class: 'g-stat' }, [
+      el('span', { class: 'g-k', text: label }), el('b', { text: value || '-' }), extra ? el('small', { text: extra }) : null,
+    ]);
+    const cardChip = (no) => {
+      const idea = ideas.find((i) => i.no === Number(no));
+      if (!idea) return null;
+      const b = el('button', { type: 'button', class: 'g-card', style: `--c: var(--c-${catOf(idea)})` }, [
+        el('span', { class: 'emoji', 'aria-hidden': 'true', text: idea.icon || '' }), `${idea.no}. ${idea.title}`,
+      ]);
+      b.addEventListener('click', () => openDetail(idea.no));
+      return b;
+    };
+    box.replaceChildren(
+      el('div', { class: 'g-head' }, [el('h2', { text: '목표' }), dday ? el('span', { class: 'g-dday', text: dday }) : null]),
+      el('div', { class: 'g-stats' }, [
+        stat('기간', g.period),
+        stat('수입 목표', g.monthly),
+        stat('시험 예산', g.budget),
+        stat('투입 시간', g.hours, g.hoursNote),
+        stat('결정일', g.decisionDate, dday),
+      ]),
+      el('div', { class: 'g-phases' }, [
+        g.phase1 ? el('p', {}, [el('b', { text: '1단계' }), g.phase1]) : null,
+        g.phase2 ? el('p', {}, [el('b', { text: '2단계' }), g.phase2]) : null,
+      ]),
+      Array.isArray(g.tracks) && g.tracks.length
+        ? el('div', { class: 'g-tracks' }, g.tracks.map((t) => el('div', { class: 'g-track' }, [
+          el('div', { class: 'g-track-head' }, [el('b', { text: t.name || '' }), t.budget ? el('span', { class: 'g-budget', text: `예산 ${t.budget}` }) : null]),
+          t.goal ? el('p', { text: t.goal }) : null,
+          el('div', { class: 'g-cards' }, (t.cards || []).map(cardChip)),
+        ])))
+        : null,
+      Array.isArray(g.rules) && g.rules.length
+        ? el('details', { class: 'g-rules' }, [el('summary', { text: '결정 규칙' }), el('ul', {}, g.rules.map((r) => el('li', { text: r })))])
+        : null,
+    );
+    box.hidden = false;
+  }
+
   function render() {
+    renderGoal();
     renderChips();
     const shown = ideas.filter(matches).sort(SORTS[state.sort] || SORTS.no);
     const isGraph = state.view === 'graph';
@@ -978,7 +1087,8 @@ dialog::backdrop { background: var(--backdrop); }
     integrity: 'sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A==',
   };
   // 분류별로 점이 모이는 자리(그림 폭·높이에 대한 비율). 내 아이디어는 가운데에 모은다.
-  const ANCHOR = { asset: [0.22, 0.3], content: [0.76, 0.3], unmanned: [0.24, 0.72], commerce: [0.74, 0.74], mine: [0.5, 0.52] };
+  // 대행·서비스는 커머스·디지털 콘텐츠와 많이 이어져 가운데, 내 아이디어는 위쪽 가운데에 둔다.
+  const ANCHOR = { asset: [0.22, 0.3], content: [0.76, 0.3], unmanned: [0.24, 0.72], commerce: [0.74, 0.74], service: [0.5, 0.52], mine: [0.5, 0.16] };
   const graph = {
     loading: null, ready: false, token: 0, selected: null,
     pos: new Map(), sizeKey: '', nodes: [], edges: [], near: new Set(), W: 0, H: 0, narrow: false,
@@ -1023,9 +1133,10 @@ dialog::backdrop { background: var(--backdrop); }
       .sort((x, y) => x.other.no - y.other.no);
   }
   // 점 크기는 종합 점수로 정한다.
+  // 종합 점수가 가질 수 있는 범위(기대 3개 1~5점, 부담 4개 1~5점 기준 약 -7~13)를 0~1로 바꿔 반지름을 정한다.
   const radius = (idea, narrow) => {
-    const r = (narrow ? 11 : 17) + (total(idea) + 4) * (narrow ? 0.9 : 1.6);
-    return Math.max(narrow ? 10 : 14, Math.min(narrow ? 19 : 32, r));
+    const t = Math.max(0, Math.min(1, (total(idea) + 7) / 20));
+    return narrow ? 10 + t * 9 : 14 + t * 18;
   };
   // 좁은 화면에서는 선택한 점과 그 이웃만 이름을 보여 준다.
   const showLabel = (n) => !graph.narrow || graph.near.has(n.no);
@@ -1123,6 +1234,9 @@ dialog::backdrop { background: var(--backdrop); }
       g.append('circle').attr('class', 'dot');
       g.append('text').attr('class', 'ico emoji');
       g.append('text').attr('class', 'lbl');
+      const nb = g.append('g').attr('class', 'nbadge'); // 새 카드 표시(N)
+      nb.append('circle').attr('r', 7);
+      nb.append('text').text('N');
       g.on('click', (e, n) => { e.stopPropagation(); selectNode(n.no); })
         .on('keydown', (e, n) => {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectNode(n.no); }
@@ -1140,6 +1254,9 @@ dialog::backdrop { background: var(--backdrop); }
         g.select('.dot').attr('r', n.r);
         g.select('.ico').attr('font-size', n.r * 0.95).text(n.idea.icon || String(n.idea.title || '?').slice(0, 1));
         g.select('.lbl').text(showLabel(n) ? n.idea.title : ''); // 자리는 placeNodeLabels에서 정한다
+        g.select('.nbadge')
+          .attr('transform', `translate(${(n.r * 0.72).toFixed(1)},${(-n.r * 0.72).toFixed(1)})`)
+          .style('display', isNew(n.idea) ? null : 'none');
       });
     positionGraph();
   }
@@ -1209,7 +1326,7 @@ dialog::backdrop { background: var(--backdrop); }
   function drawHulls(d3, labelBoxes = []) {
     const { nodes, W, H, narrow } = graph;
     const lfs = narrow ? 10.5 : 12;
-    const obstacles = [...nodes.map((n) => ({ x0: n.x - n.r, x1: n.x + n.r, y0: n.y - n.r, y1: n.y + n.r })), ...labelBoxes];
+    const circles = nodes.map((n) => ({ x0: n.x - n.r, x1: n.x + n.r, y0: n.y - n.r, y1: n.y + n.r }));
     const area = boxArea;
     const placed = [];
     const hulls = [];
@@ -1228,13 +1345,19 @@ dialog::backdrop { background: var(--backdrop); }
       let best = null;
       for (const [px, py] of hull) {
         const len = Math.hypot(px - cx, py - cy) || 1;
-        const x = px + ((px - cx) / len) * 6;
-        const y = py + ((py - cy) / len) * 6 + lfs / 3;
-        const box = { x0: x - w / 2, x1: x + w / 2, y0: y - lfs, y1: y + 3 };
-        if (box.x0 < 6 || box.x1 > W - 6 || box.y0 < 44 || box.y1 > H - 6) continue;
-        const cost = obstacles.reduce((s, b) => s + area(box, b), 0) + placed.reduce((s, b) => s + area(box, b) * 4, 0) + y * 0.05;
-        if (!best || cost < best.cost) best = { x, y, cost, box };
+        for (const push of [6, 16]) { // 묶음 바로 바깥과 조금 더 바깥 두 단계를 본다
+          const x = px + ((px - cx) / len) * push;
+          const y = py + ((py - cy) / len) * push + lfs / 3;
+          const box = { x0: x - w / 2, x1: x + w / 2, y0: y - lfs, y1: y + 3 };
+          if (box.x0 < 6 || box.x1 > W - 6 || box.y0 < 44 || box.y1 > H - 6) continue;
+          const onLabels = labelBoxes.reduce((s, b) => s + area(box, b), 0);
+          const cost = circles.reduce((s, b) => s + area(box, b), 0) + onLabels * 5
+            + placed.reduce((s, b) => s + area(box, b) * 4, 0) + y * 0.05 + push;
+          if (!best || cost < best.cost) best = { x, y, cost, box, onLabels };
+        }
       }
+      // 점 이름표가 우선이다. 어디에 놓아도 점 이름표와 겹치면 묶음 이름은 숨긴다(분류는 색과 범례로도 구분된다).
+      if (best && best.onLabels > 0) best = null;
       if (best) placed.push(best.box);
       hulls.push({ cat: c.id, label: c.label, hull, spot: best });
     }
@@ -1294,6 +1417,7 @@ dialog::backdrop { background: var(--backdrop); }
       el('span', {}, [el('span', { class: 'ln' }), '서로 받쳐 주는 관계']),
       el('span', { text: '점 크기 = 종합 점수' }),
       el('span', {}, [el('span', { class: 'ring' }), '초안']),
+      shown.some(isNew) ? el('span', {}, [el('span', { class: 'nb', text: 'N' }), `새 카드(${NEW_DAYS}일)`]) : null,
     );
   }
 
@@ -1352,6 +1476,7 @@ dialog::backdrop { background: var(--backdrop); }
           el('div', { class: 'meta' }, [
             el('span', { class: 'cat', text: labelOf(CATEGORIES, cat) }),
             el('span', { class: 'status', style: `--s: var(--s-${status})`, text: labelOf(STATUSES, status) }),
+            isNew(idea) ? el('span', { class: 'new', text: 'NEW' }) : null,
             idea.draft ? el('span', { class: 'draft', text: '초안' }) : null,
           ]),
           el('h2', { class: 'p-title' }, [el('span', { class: 'no', text: String(idea.no) }), idea.title || '(이름 없음)']),
@@ -1409,6 +1534,7 @@ dialog::backdrop { background: var(--backdrop); }
           el('div', { class: 'meta' }, [
             el('span', { class: 'cat', text: labelOf(CATEGORIES, cat) }),
             el('span', { class: 'status', style: `--s: var(--s-${status})`, text: labelOf(STATUSES, status) }),
+            isNew(idea) ? el('span', { class: 'new', text: 'NEW' }) : null,
             idea.draft ? el('span', { class: 'draft', text: '초안' }) : null,
             idea._local ? el('span', { class: 'local', text: '이 기기에만 저장' }) : null,
           ]),
@@ -1575,6 +1701,7 @@ dialog::backdrop { background: var(--backdrop); }
       note: F('note').value.trim(),
       links: readLinks(prev ? prev.no : null),
       source: prev?.source || '',
+      created: prev ? (prev.created || '') : today(), // 새 카드는 오늘, 고칠 때는 처음 만든 날을 유지
       updated: today(),
     });
 

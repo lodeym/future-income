@@ -30,6 +30,19 @@
 
 기본은 밝은 화면이다(폰이 어두운 모드여도 밝게 연다). 도구 줄의 🌙 버튼으로 어두운 화면으로 바꿀 수 있고, 고른 값은 그 기기에만 저장된다(`localStorage`의 `future-income.theme`).
 
+## 목표 상자
+
+`ideas.json` 맨 위의 `goal`을 페이지 머리말 아래에 보여 준다. 결정일까지 남은 날(D-n)을 함께 표시하고, 시험 트랙의 카드 버튼을 누르면 그 카드의 상세 창이 열린다.
+
+| 필드 | 뜻 |
+|---|---|
+| `period`, `monthly`, `budget` | 기간, 수입 목표, 시험 예산 |
+| `hours`, `hoursNote` | 투입 시간과 그 설명 |
+| `decisionDate` | 결정일(`YYYY-MM-DD`) |
+| `phase1`, `phase2` | 1단계 목표, 2단계로 넘어갈 신호 |
+| `tracks` | 시험 트랙 목록. `name`, `cards`(카드 번호), `budget`, `goal` |
+| `rules` | 결정 규칙(문장 목록) |
+
 ## 아이디어 필드
 
 | 필드 | 뜻 | 값 |
@@ -38,15 +51,16 @@
 | `title` | 이름 | 문자열 |
 | `icon` | 타일 아이콘 | 이모지 하나. 비우면 이름 첫 글자 |
 | `image` | 타일 이미지 | 선택. 이미지 주소를 넣으면 아이콘 대신 표시 |
-| `category` | 분류 | `asset` 자산 투자, `unmanned` 무인·임대, `commerce` 커머스, `content` 디지털 콘텐츠, `mine` 내 아이디어 |
+| `category` | 분류 | `asset` 자산 투자, `unmanned` 무인·임대, `commerce` 커머스, `content` 디지털 콘텐츠, `service` 대행·서비스, `mine` 내 아이디어 |
 | `status` | 상태 | `candidate` 후보, `reviewing` 검토 중, `testing` 시험 중, `active` 진행 중, `hold` 보류 |
 | `draft` | 초안 여부 | `true`면 카드에 '초안' 표시. 직접 검토를 마치면 `false` |
 | `summary` | 한 줄 설명 | 문자열 |
-| `scores` | 평가(1~5) | 부담: `capital` 초기 자본, `time` 투입 시간, `upkeep` 유지 노력, `risk` 리스크(적을수록 가벼움) / 기대: `fit` 역량 적합, `income` 수익 규모(많을수록 좋음) |
+| `scores` | 평가(1~5) | 부담: `capital` 초기 자본, `time` 투입 시간, `upkeep` 유지 노력, `risk` 리스크(적을수록 가벼움) / 기대: `fit` 역량 적합, `income` 수익 규모, `lasting` 지속성(한 번 만든 것이 계속 돈이 되는 정도)(많을수록 좋음) |
 | `next` | 다음 행동 | 문자열 |
 | `note` | 고민 메모 | 문자열. 상세 창에 표시 |
 | `links` | 연결 | 선택. `[{"no": 18, "why": "이유"}]`. 한 쌍은 한쪽 카드에만 적으면 되고, 화면에서는 방향 없는 선 하나로 합친다 |
 | `source` | 출처 | 선택 |
+| `created` | 카드 만든 날 | `YYYY-MM-DD`. 이날부터 7일 동안 카드·관계도에 NEW 표시가 붙는다. 페이지에서 새로 추가하면 자동으로 오늘 날짜가 들어간다 |
 | `updated` | 카드 수정일 | `YYYY-MM-DD` |
 
 카드를 고치면 파일 맨 위의 `updated`도 같은 날짜로 바꾼다. 화면의 '마지막 수정'이 이 값을 쓴다.
